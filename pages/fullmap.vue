@@ -57,7 +57,6 @@ const showMenuCard = ref(true);
 
 const onMapLoaded = async (map) => {
   mapInstance.value = map; // Store the MapLibre instance
-  console.log("Map loaded and instance set."); // Debugging log
   await fetchUrbanIssues(); // Fetch and render the data after the map is ready
 };
 
@@ -191,7 +190,6 @@ const drawGeometryWithImage = async (geomList) => {
 // Function to display geometry details
 const showPopup = (properties, coordinates) => {
   // Create a new popup
-  console.log(properties)
   const popup = new Popup({ offset: 15 }) // Adjust offset as needed
     .setLngLat([coordinates.lng, coordinates.lat])
     .setHTML(`

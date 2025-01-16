@@ -125,7 +125,6 @@ export default {
       });
     },
     fitBoundingBox(bbox) {
-      console.log("MapLibre fitBoundingBox called with bbox:", bbox); // Debug log
       if (this.map) {
         this.map.fitBounds(bbox, { padding: 14 });
       }
