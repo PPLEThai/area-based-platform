@@ -1,0 +1,186 @@
+[
+  {
+    "id": 1,
+    "name": "พื้นที่สาธารณะ",
+    "subcategories": [
+      {
+        "id": 101,
+        "name": "สวนสาธารณะ",
+        "image": "park.png"
+      },
+      {
+        "id": 102,
+        "name": "ลานอเนกประสงค์",
+        "image": "multipurpose_area.png"
+      },
+      {
+        "id": 103,
+        "name": "สนามเด็กเล่น/แหล่งเรียนรู้สำหรับเด็ก",
+        "image": "playground.png"
+      },
+      {
+        "id": 104,
+        "name": "Co-working space",
+        "image": "coworking_space.png"
+      },
+      {
+        "id": 105,
+        "name": "ลานกีฬา",
+        "image": "sports_area.png"
+      },
+      {
+        "id": 106,
+        "name": "Hawker center",
+        "image": "hawker_center.png"
+      },
+      {
+        "id": 107,
+        "name": "อื่นๆ",
+        "image": "other.png"
+      }
+    ],
+    "color": "#ff6a13"
+  },
+  {
+    "id": 2,
+    "name": "เส้นทางสัญจร",
+    "subcategories": [
+      {
+        "id": 201,
+        "name": "ทางเท้า",
+        "image": "sidewalk.png"
+      },
+      {
+        "id": 202,
+        "name": "ถนน",
+        "image": "road.png"
+      },
+      {
+        "id": 203,
+        "name": "สะพานปูน คสล.",
+        "image": "concrete_bridge.png"
+      },
+      {
+        "id": 204,
+        "name": "ทางจักรยาน",
+        "image": "bike_lane.png"
+      },
+      {
+        "id": 205,
+        "name": "แม่น้ำลำคลอง",
+        "image": "river.png"
+      },
+      {
+        "id": 206,
+        "name": "อื่นๆ",
+        "image": "other.png"
+      }
+    ],
+    "color": "#1f77b4"
+  },
+  {
+    "id": 3,
+    "name": "ระบบขนส่งสาธารณะ",
+    "subcategories": [
+      {
+        "id": 301,
+        "name": "เรือโดยสาร",
+        "image": "ferry.png"
+      },
+      {
+        "id": 302,
+        "name": "รถประจำทาง",
+        "image": "bus.png"
+      },
+      {
+        "id": 303,
+        "name": "รถรับจ้าง/มอเตอร์ไซค์รับจ้าง",
+        "image": "taxi_motorbike.png"
+      },
+      {
+        "id": 304,
+        "name": "อื่นๆ",
+        "image": "other.png"
+      }
+    ],
+    "color": "#9467bd"
+  },
+  {
+    "id": 4,
+    "name": "บริการสาธารณะ",
+    "subcategories": [
+      {
+        "id": 401,
+        "name": "สถานศึกษา",
+        "image": "school.png"
+      },
+      {
+        "id": 402,
+        "name": "สถานพยาบาล",
+        "image": "hospital.png"
+      },
+      {
+        "id": 403,
+        "name": "สถานที่ราชการ",
+        "image": "government_building.png"
+      }
+    ],
+    "color": "#d62728"
+  },
+  {
+    "id": 5,
+    "name": "สิ่งแวดล้อม",
+    "subcategories": [
+      {
+        "id": 501,
+        "name": "มลพิษทางอากาศ",
+        "image": "air_pollution.png"
+      },
+      {
+        "id": 502,
+        "name": "พื้นที่สีเขียว",
+        "image": "green_area.png"
+      }
+    ],
+    "color": "#2ca02c"
+  },
+  {
+    "id": 6,
+    "name": "สาธารณภัย",
+    "subcategories": [
+      {
+        "id": 601,
+        "name": "พื้นที่สีเขียว",
+        "image": "green_area.png"
+      },
+      {
+        "id": 602,
+        "name": "สถานีดับเพลิงและกู้ภัย",
+        "image": "fire_station.png"
+      }
+    ],
+    "color": "#8c564b"
+  },
+  {
+    "id": 7,
+    "name": "อื่นๆ",
+    "subcategories": [
+      {
+        "id": 701,
+        "name": "พื้นที่รกร้าง / พื้นที่ว่างเปล่า",
+        "image": "vacant_land.png"
+      },
+      {
+        "id": 702,
+        "name": "แหล่งท่องเที่ยว",
+        "image": "tourist_spot.png"
+      },
+      {
+        "id": 703,
+        "name": "ชุมชน / สังคม",
+        "image": "community.png"
+      }
+    ],
+    "color": "#e377c2"
+  }
+]

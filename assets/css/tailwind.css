@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    margin: 0;
+}
+
+@font-face {
+    font-family: "Anakotmai";
+    /* Light */
+    font-weight: 400;
+    src: url("/fonts/Anakotmai-Light.ttf");
+}
+
+@font-face {
+    font-family: "Anakotmai";
+    /* Medium */
+    font-weight: 500;
+    src: url("/fonts/Anakotmai-Medium.ttf");
+}
+
+@font-face {
+    font-family: "Anakotmai";
+    /* Bold */
+    font-weight: 700;
+    src: url("/fonts/Anakotmai-Bold.ttf");
+}
