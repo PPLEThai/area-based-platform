@@ -44,20 +44,47 @@
 import { useCategories } from "@/composables/useCategories";
 
 export default {
+  name: "Dropdown",
   props: {
     resetTrigger: {
       type: Boolean,
       required: false,
       default: false,
     },
+    initialCategoryId: {
+      type: [String, Number],
+      required: false,
+      default: "",
+    },
+    initialSubcategoryId: {
+      type: [String, Number],
+      required: false,
+      default: "",
+    },
   },
   watch: {
+    initialCategoryId: {
+      immediate: true,
+      handler(newVal) {
+        if (newVal) {
+          this.selectedCategoryId = newVal;
+          this.updateSubcategories();
+        }
+      },
+    },
+    initialSubcategoryId: {
+      immediate: true,
+      handler(newVal) {
+        this.selectedSubcategoryId = newVal;
+      },
+    },
     resetTrigger(newValue) {
       if (newValue) {
         this.resetDropdown();
       }
     },
-    selectedSubcategoryId() {
+    selectedSubcategoryId(value) {
+      this.emitSubcategory(value);
       this.emitSelection();
     },
   },
@@ -65,8 +92,8 @@ export default {
     return {
       categories: [],
       subcategoryList: [],
-      selectedCategoryId: "",
-      selectedSubcategoryId: "",
+      selectedCategoryId: this.initialCategoryId,
+      selectedSubcategoryId: this.initialSubcategoryId,
     };
   },
   mounted() {
@@ -78,16 +105,25 @@ export default {
       this.selectedSubcategoryId = "";
       this.subcategoryList = [];
     },
-    async loadCategories() {
-      try {
-        const categories = await import("@/assets/data/categories.json");
-        // const categories = await import("http://localhost:3003/categories/list");
 
-        this.categories = categories.default;
+    loadCategories() {
+      try {
+        this.categories = useCategories();
+
+        // อัพเดต subcategoryList และค่าเริ่มต้น
+        if (this.initialCategoryId) {
+          this.selectedCategoryId = this.initialCategoryId;
+          this.updateSubcategories(); // โหลด subcategories
+        }
+
+        if (this.initialSubcategoryId) {
+          this.selectedSubcategoryId = this.initialSubcategoryId;
+        }
       } catch (error) {
         console.error("Error loading categories:", error);
       }
     },
+
     updateSubcategories() {
       const selectedCategory = this.categories.find(
         (category) => category.id === parseInt(this.selectedCategoryId)
@@ -100,6 +136,11 @@ export default {
       this.$emit("selection-changed", {
         selectedCategoryId: this.selectedCategoryId,
         selectedSubcategoryId: this.selectedSubcategoryId,
+      });
+    },
+    emitSubcategory(value) {
+      this.$emit("subcategory-changed", {
+        selectedCategoryId: value,
       });
     },
   },

@@ -12,7 +12,6 @@ export default defineNuxtPlugin(() => {
 
     // Interceptors
     axiosInstance.interceptors.request.use((config) => {
-        console.log('Making request to:', config.url);
         return config;
     });
 
