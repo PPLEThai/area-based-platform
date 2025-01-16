@@ -24,4 +24,19 @@ export default defineNuxtConfig({
       apiBaseUrl: process.env.API_BASE_URL || 'http://localhost:3123',
     },
   },
+  app: {
+    head: {
+      title: 'PPLE Hackable City', // Default title
+      meta: [
+        { name: 'description', content: 'ระบบจัดเก็บข้อมูลเมือง พรรคประชาชน' },
+        { property: 'og:title', content: 'PPLE Hackable City' },
+        { property: 'og:description', content: 'ระบบจัดเก็บข้อมูลเมือง พรรคประชาชน' },
+        { property: 'og:image', content: '/images/thumbnail.png' }, // Path to your thumbnail image
+        { property: 'og:type', content: 'website' },
+      ],
+      link: [
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      ],
+    },
+  },
 })
