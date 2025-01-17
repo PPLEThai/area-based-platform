@@ -182,6 +182,7 @@
 </template>
 
 <script setup>
+import { useUserStore } from '@/stores/useStore';
 import { ref, computed, onMounted } from "vue";
 import { TrashIcon, PencilIcon } from "@heroicons/vue/24/solid";
 import Modal from "@/components/Modal.vue";
@@ -189,6 +190,9 @@ import EditModal from "@/components/EditModal.vue";
 import { useToast } from "vue-toastification";
 import { useUrbanIssues } from "@/composables/useUrbanIssues";
 import * as Terraformer from "@terraformer/wkt";
+
+const userStore = useUserStore();
+const user = userStore.$state;
 
 // State
 const mapRef = ref(null); // Reference for MapLibre
@@ -201,7 +205,7 @@ const limit = ref(10);
 const totalPages = ref(0);
 const hasMore = ref(false);
 const mapStyle = ref("https://basemaps.cartocdn.com/gl/positron-gl-style/style.json");
-const userEmail = "admin@gmail.com";
+const userEmail = user.email;
 const resetDropdown = ref(false);
 const isSubmitted = ref(false);
 
