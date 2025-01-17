@@ -38,7 +38,7 @@ const userStore = useUserStore();
 const user = userStore.$state;
 
 const logout = () => {
+  window.location.href = '/oauth2/sign_out';
   userStore.clearUser();
-  navigateTo('/oauth2/sign_out');
 };
 </script>

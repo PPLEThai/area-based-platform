@@ -114,14 +114,18 @@
 </template>
 
 <script setup>
+import { useUserStore } from '@/stores/useStore';
 import { useRouter } from '#app';
-import { ref, reactive, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { useUrbanIssues } from "@/composables/useUrbanIssues";
 import { useToast } from "vue-toastification";
 import { geojsonToWKT } from "@terraformer/wkt";
 import Dropdowns from "@/components/Dropdowns.vue";
 import MapLibreTerraDraw from "@/components/MapLibreTerraDraw.vue";
 import Modal from "@/components/Modal.vue";
+
+const userStore = useUserStore();
+const user = userStore.$state;
 
 const uploadedFiles = ref([]);
 const filePreviews = ref([]);
@@ -191,7 +195,7 @@ const confirmSubmit = async () => {
     name: titleName.value,
     subcategory_id: selectedSubcategory.value,
     ownership_id: selectedOwnership.value,
-    creator_mail: "admin@gmail.com",
+    creator_mail: user.email,
     detail: detailName.value,
     geom: geojsonToWKT(geom.value[0].geometry),
   };
