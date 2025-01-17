@@ -13,18 +13,14 @@
             <img class="h-8 w-auto" src="/images/logo-pp.png" alt="โลโก้พรรคประชาชน" />
             <div class="ml-4">
               <h1 class="text-lg font-bold text-gray-900">Hackable City</h1>
-              <p class="text-sm text-gray-500">{{ config.public.systemName }}</p>
+              <p class="text-sm text-gray-500">{{ systemName }}</p>
             </div>
           </NuxtLink>
 
-          <!-- Logout -->
-          <div class="flex flex-row items-center">
-            <div class="mx-4 hidden sm:block">
-              Nitikorn Bunyakulcharoen
-            </div>
-            <div class="">
-              <a href="#" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white">Logout</a>
-            </div>
+          <div class="flex items-center">
+            <img v-if="user.picture" :src="user.picture" alt="Avatar" class="h-8 w-8 rounded-full mr-2" />
+            <span v-if="user.name" class="text-sm text-gray-700 mr-4">{{ user.name }}</span>
+            <button @click="logout" class="px-4 py-2 bg-gray-900 text-white rounded">Logout</button>
           </div>
 
         </div>
@@ -34,5 +30,15 @@
 </template>
 
 <script setup>
+import { useUserStore } from '@/stores/useStore';
+
 const config = useRuntimeConfig();
+const systemName = config.public.systemName;
+const userStore = useUserStore();
+const user = userStore.$state;
+
+const logout = () => {
+  userStore.clearUser();
+  navigateTo('/oauth2/sign_out');
+};
 </script>

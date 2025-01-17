@@ -185,7 +185,7 @@
 import { ref, computed, onMounted } from "vue";
 import { TrashIcon, PencilIcon } from "@heroicons/vue/24/solid";
 import Modal from "@/components/Modal.vue";
-import EditModal from "@/components/editModal.vue";
+import EditModal from "@/components/EditModal.vue";
 import { useToast } from "vue-toastification";
 import { useUrbanIssues } from "@/composables/useUrbanIssues";
 import * as Terraformer from "@terraformer/wkt";

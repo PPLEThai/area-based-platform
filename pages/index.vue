@@ -258,7 +258,7 @@ const handleFileUpload = (event) => {
 };
 
 const removeFile = (index) => {
-  this.uploadedFiles.splice(index, 1); // ลบไฟล์ออกจากอาร์เรย์
-  this.filePreviews.splice(index, 1); // ลบรูปตัวอย่างออก
+  uploadedFiles.splice(index, 1); // ลบไฟล์ออกจากอาร์เรย์
+  filePreviews.splice(index, 1); // ลบรูปตัวอย่างออก
 };
 </script>
