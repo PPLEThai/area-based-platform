@@ -1,6 +1,7 @@
 <template>
-  <div class="flex flex-col-reverse h-[calc(100%-64px)] md:flex-row md:h-full">
-    <div class="w-5/5 md:w-2/5 p-4 shadow-lg h-[60%] md:h-full overflow-auto">
+  <div class="flex flex-col-reverse h-fit md:flex-row md:h-full">
+    <!-- ส่วนของการบันทึกข้อมูล -->
+    <div class="w-5/5 md:w-2/5 p-4 shadow-lg h-auto md:h-full">
       <div class="py-2">
         <div class="text-primary font-bold">บันทึกข้อมูลแนวทางการแก้ปัญหา</div>
         <div class="text-gray-500 font-light text-sm">
@@ -10,7 +11,7 @@
       <hr class="my-2 h-0.5 border-t-0 bg-neutral-100 dark:bg-white/10" />
 
       <form @submit.prevent="openConfirmModal">
-        <div class="grid gap-6 mb-6 md:grid-cols-1">
+        <div class="grid gap-6 mb-6 grid-cols-1 md:grid-cols-1">
           <div>
             <label for="title-name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
               หัวข้อ
@@ -104,7 +105,8 @@
       </form>
     </div>
 
-    <div class="w-5/5 md:w-3/5 h-[40%] md:h-full">
+    <!-- ส่วนของแผนที่ -->
+    <div class="w-5/5 md:w-3/5 h-[350px] md:h-full">
       <MapLibreTerraDraw :mapStyle="mapStyle" :center="[100.599186, 13.736717]" :zoom="10"
         @features-updated="updateFeatures" />
     </div>

@@ -1,12 +1,12 @@
 <template>
   <div class="relative w-full h-full">
     <!-- Search Box -->
-    <!-- <div class="absolute top-4 left-4 z-10 w-96">
+    <div class="absolute top-4 left-4 z-10 w-64 sm:w-96">
       <input
         type="text"
         v-model="searchQuery"
         @keydown.enter="performSearch"
-        placeholder="Search for a place..."
+        placeholder="ค้นหาสถานที่ เช่น เพชรเกษม 48"
         class="w-full p-2 border rounded-lg shadow"
       />
       <ul v-if="searchResults.length" class="bg-white border rounded-lg shadow mt-2">
@@ -20,7 +20,7 @@
         </li>
       </ul>
       <p v-if="errorMessage" class="mt-2 text-red-500">{{ errorMessage }}</p>
-    </div> -->
+    </div>
 
     <!-- Map Container -->
     <div ref="mapContainer" class="w-full h-full"></div>
@@ -65,6 +65,12 @@ const mapContainer = ref(null); // Reference to the map container
 const map = ref(null);
 const draw = ref(null);
 const features = ref([]);
+
+// search display
+const searchQuery = ref("");
+const searchResults = ref([]);
+const errorMessage = ref("");
+const currentMarker = ref(null);
 
 // Initialize Map
 const initializeMap = async () => {
@@ -129,6 +135,59 @@ const drawBkkBoundary = () => {
     },
   });
 }
+
+const performSearch = async () => {
+  if (!searchQuery.value.trim()) return;
+
+  // Remove existing marker if it exists
+  if (currentMarker.value) {
+    currentMarker.value.remove();
+    currentMarker.value = null;
+  }
+
+  const url = `https://search.longdo.com/mapsearch/json/search?keyword=${encodeURIComponent(
+    searchQuery.value
+  )}&limit=5&key=fortestonlydonotuseinproduction!`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.data && data.data.length > 0) {
+      searchResults.value = data.data;
+      errorMessage.value = "";
+    } else {
+      searchResults.value = [];
+      errorMessage.value = `ไม่พบสถานที่ที่ตรงกับ "${searchQuery.value}"`;
+    }
+  } catch (error) {
+    console.error("Search error:", error);
+    errorMessage.value = "เกิดข้อผิดพลาดในการค้นหา กรุณาลองใหม่";
+  }
+};
+
+const selectResult = (result) => {
+  map.value.flyTo({
+    center: [result.lon, result.lat],
+    zoom: 14,
+  });
+
+  // Remove existing marker if it exists
+  if (currentMarker.value) {
+    currentMarker.value.remove();
+  }
+
+  // Create and store new marker
+  currentMarker.value = new maplibregl.Marker()
+    .setLngLat([result.lon, result.lat])
+    .setPopup(
+      new maplibregl.Popup().setHTML(`<h3>${result.name}</h3><p>${result.address}</p>`)
+    )
+    .addTo(map.value);
+
+  searchResults.value = [];
+  searchQuery.value = "";
+};
 
 // Lifecycle Hook
 onMounted(() => {

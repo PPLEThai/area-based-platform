@@ -1,7 +1,7 @@
 <template>
   <div class="relative w-full h-full">
     <!-- Search Box -->
-    <!-- <div class="absolute top-4 left-4 z-10 w-72">
+    <div class="absolute top-4 left-4 z-10 w-72">
       <input
         type="text"
         v-model="searchQuery"
@@ -20,7 +20,7 @@
         </li>
       </ul>
       <p v-if="errorMessage" class="mt-2 text-red-500">{{ errorMessage }}</p>
-    </div> -->
+    </div>
 
     <!-- Map Container -->
     <div ref="mapContainer" class="w-full h-full"></div>

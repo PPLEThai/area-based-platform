@@ -1,85 +1,63 @@
 <template>
   <div class="flex flex-col-reverse h-full md:flex-row md:h-full">
     <!-- Left: Table -->
-    <div
-      id="items-table-container"
-      class="w-full h-[80%] md:h-full pr-0 md:w-[70%] p-4 md:p-4"
-    >
+    <div id="items-table-container" class="w-full h-[80%] md:h-full pr-0 md:w-[70%] p-4 md:p-4">
       <div class="flex justify-between items-center mb-4">
         <h1 class="text-xl font-bold">รายการ</h1>
         <div class="flex">
-          <button
-            :class="[
-              'px-4 py-2 border-l border-t rounded-l-lg',
-              showMine ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700',
-            ]"
-            @click="toggleView(true)"
-          >
+          <button :class="[
+            'px-4 py-2 border-l border-t rounded-l-lg',
+            showMine ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700',
+          ]" @click="toggleView(true)">
             ของฉัน
           </button>
-          <button
-            :class="[
-              'px-4 py-2 border-l border-t rounded-r-lg',
-              !showMine ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700',
-            ]"
-            @click="toggleView(false)"
-          >
+          <button :class="[
+            'px-4 py-2 border-l border-t rounded-r-lg',
+            !showMine ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700',
+          ]" @click="toggleView(false)">
             ทุกคน
           </button>
         </div>
       </div>
 
-      <div class="relative h-[60%] md:h-[80%] overflow-y-auto shadow-md sm:rounded-lg">
+      <div :class="[
+        'relative overflow-y-auto shadow-md sm:rounded-lg',
+        filteredItems.length !== 0 ? 'h-[60%] sm:h-[80%]' : 'h-[60%] sm:h-[10%]' ]">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-          <thead
-            class="text-sm text-white uppercase bg-secondary dark:bg-gray-700 dark:text-gray-400 sticky top-0"
-          >
+          <thead class="text-sm text-white uppercase bg-secondary dark:bg-gray-700 dark:text-gray-400 sticky top-0">
             <tr>
               <th scope="col" class="px-3 py-3 w-2 text-center">#</th>
               <th scope="col" class="px-3 py-3 w-6 text-center">ชื่อ</th>
               <th scope="col" class="px-3 py-3 w-48 text-center">รายละเอียด</th>
               <th scope="col" class="px-3 py-3 w-20 text-center">ประเภท</th>
-              <th scope="col" class="px-3 py-3 w-20 text-center">วันที่สร้าง</th>
+              <!-- <th scope="col" class="px-3 py-3 w-20 text-center">วันที่สร้าง</th> -->
               <th v-if="showMine" scope="col" class="px-3 py-3 w-2 text-center">ลบ</th>
             </tr>
           </thead>
           <tbody>
-            <tr
-              v-for="(item, index) in filteredItems"
-              :key="item.id"
+            <tr v-for="(item, index) in filteredItems" :key="item.id"
               class="cursor-pointer bg-white border-b hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 text-black dark:text-gray-400"
-              @click="focusOnGeometry(item.geom)"
-            >
+              @click="focusOnGeometry(item.geom)">
               <td class="px-3 py-3 text-center font-light">
                 {{ index + 1 + (page - 1) * limit }}
               </td>
               <td class="px-3 py-3 font-medium">{{ item.name }}</td>
               <td class="px-3 py-3 font-light" :title="item.detail">{{ item.detail }}</td>
               <td class="px-3 py-3 font-light" :title="item.sub_name">
-                <img
-                  :src="'/images/icons/' + item.sub_id + '.png'"
-                  alt="icon"
-                  class="inline-block w-6 h-6 mr-1"
-                />
+                <img :src="'/images/icons/' + item.sub_id + '.png'" alt="icon" class="inline-block w-6 h-6 mr-1" />
                 {{ item.sub_name }}
               </td>
-              <td class="px-3 py-3 text-start font-light">
+              <!-- <td class="px-3 py-3 text-start font-light">
                 <div>{{ formatDate(item.created).formattedDate }}</div>
                 <div>{{ formatDate(item.created).formattedTime }}</div>
-              </td>
+              </td> -->
               <td v-if="showMine" class="px-3 py-3 text-center">
-                <a
-                  href="#"
-                  class="text-blue-600 dark:text-blue-500 hover:underline ml-2"
-                  @click.prevent="openEditModal(item)"
-                >
+                <a href="#" class="text-blue-600 dark:text-blue-500 hover:underline ml-2"
+                  @click.prevent="openEditModal(item)">
                   <PencilIcon class="w-5 h-5 inline" />
                 </a>
-                <a
-                  href="#"
-                  class="text-red-600 dark:text-red-500 hover:underline ml-2"
-                  @click.prevent="openDeleteModal(item.id)"
-                >
+                <a href="#" class="text-red-600 dark:text-red-500 hover:underline ml-2"
+                  @click.prevent="openDeleteModal(item.id)">
                   <TrashIcon class="w-5 h-5 inline" />
                 </a>
               </td>
@@ -87,92 +65,53 @@
           </tbody>
         </table>
       </div>
+      <div class="text-red-700 my-4" v-show="filteredItems.length === 0">
+        ยังไม่มีข้อมูลของคุณ กรุณาไปที่เมนู "บันทึก"
+      </div>
 
       <div class="flex justify-between items-center mt-4">
-        <button
-          class="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50"
-          :disabled="page === 1"
-          @click="fetchData(page - 1)"
-        >
-          < Previous
+        <button class="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50" :disabled="page === 1"
+          @click="fetchData(page - 1)">
+          &lt; Previous
         </button>
         <span>Page {{ page }} of {{ totalPages }}</span>
-        <button
-          class="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50"
-          :disabled="!hasMore"
-          @click="fetchData(page + 1)"
-        >
-          Next >
+        <button class="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50" :disabled="!hasMore"
+          @click="fetchData(page + 1)">
+          Next &gt;
         </button>
       </div>
     </div>
 
     <div id="map-container" class="w-full h-[200px] md:w-[30%] md:h-full">
-      <MapLibre
-        :mapStyle="mapStyle"
-        :center="[100.523186, 13.736717]"
-        :zoom="10"
-        :features="geoJsonFeatures"
-        @fitBoundingBox="fitBoundingBoxOnMap"
-        ref="mapRef"
-      />
+      <MapLibre :mapStyle="mapStyle" :center="[100.523186, 13.736717]" :zoom="10" :features="geoJsonFeatures"
+        @fitBoundingBox="fitBoundingBoxOnMap" ref="mapRef" />
     </div>
 
     <!-- Edit Modal for Confirm -->
-    <Modal
-      v-if="modalOpen"
-      :isOpen="modalOpen"
-      title="ยืนยันการลบข้อมูล"
-      message="คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้?"
-      @cancel="closeModal"
-      @confirm="confirmDelete"
-    />
+    <Modal v-if="modalOpen" :isOpen="modalOpen" title="ยืนยันการลบข้อมูล"
+      message="คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้?" @cancel="closeModal" @confirm="confirmDelete" />
 
     <!-- Edit Modal -->
-    <EditModal
-      v-if="editModalOpen"
-      :isOpen="editModalOpen"
-      :detail="editForm.detail"
-      :name="editForm.name"
-      :subCategory="editForm.subcategory_id"
-      title="แก้ไขข้อมูล"
-      @cancel="closeEditModal"
-      @confirm="submitEditForm"
-    >
+    <EditModal v-if="editModalOpen" :isOpen="editModalOpen" :detail="editForm.detail" :name="editForm.name"
+      :subCategory="editForm.subcategory_id" title="แก้ไขข้อมูล" @cancel="closeEditModal" @confirm="submitEditForm">
       <div class="p-4">
         <div class="mb-4">
           <label for="name" class="block text-sm font-medium text-gray-700">ชื่อ</label>
-          <input
-            id="name"
-            type="text"
-            v-model="editForm.name"
-            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-          />
+          <input id="name" type="text" v-model="editForm.name"
+            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" />
         </div>
 
         <div class="mb-4">
-          <label for="detail" class="block text-sm font-medium text-gray-700"
-            >รายละเอียด</label
-          >
-          <textarea
-            id="detail"
-            v-model="editForm.detail"
-            rows="4"
-            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-          ></textarea>
+          <label for="detail" class="block text-sm font-medium text-gray-700">รายละเอียด</label>
+          <textarea id="detail" v-model="editForm.detail" rows="4"
+            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"></textarea>
         </div>
 
         <div>
-          <Dropdowns
-            :resetTrigger="resetDropdown"
+          <Dropdowns :resetTrigger="resetDropdown"
             :initialCategoryId="Number(String(editForm.subcategory_id).charAt(0))"
-            :initialSubcategoryId="editForm.subcategory_id"
-            @subcategory-changed="handleSelectionChanged"
-          />
-          <p
-            v-if="isSubmitted && (!selectedCategory || !editForm.subcategory_id)"
-            class="text-red-500 text-sm"
-          >
+            :initialSubcategoryId="editForm.subcategory_id" @subcategory-changed="handleSelectionChanged" />
+          <p v-if="isSubmitted && (!selectedCategory || !editForm.subcategory_id)" class="text-red-500 text-sm">
             กรุณาเลือกหมวดหมู่และหมวดหมู่ย่อย
           </p>
         </div>

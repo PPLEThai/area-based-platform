@@ -49,7 +49,8 @@ import { Popup } from "maplibre-gl"; // Import Popup from MapLibre
 const toast = useToast();
 const categoryList = useCategories();
 
-const mapStyle = ref("https://api.maptiler.com/maps/streets-v2/style.json?key=DMl4AxokgMPvgzLikrFx");
+// const mapStyle = ref("https://api.maptiler.com/maps/streets-v2/style.json?key=DMl4AxokgMPvgzLikrFx");
+const mapStyle = ref("https://basemaps.cartocdn.com/gl/positron-gl-style/style.json");
 const mapInstance = ref(null);
 
 const statistics = reactive([]);
