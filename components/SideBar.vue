@@ -1,6 +1,17 @@
 <template>
-  <div class="drop-shadow-md bg-white flex flex-col justify-between">
-    <div class="grid grid-cols-3 md:flex md:flex-col">
+  <div :class="[
+    'drop-shadow-md bg-white flex flex-col z-30',
+    'md:relative',
+    isMobileOpen ? 'fixed inset-0 w-48' : 'hidden md:flex'
+  ]">
+    <div class="flex justify-end md:hidden p-4" v-if="isMobileOpen">
+      <button @click="$emit('close')" class="text-gray-500">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <div class="flex flex-col md:flex-col">
       <div
         v-for="menu in menus.filter((m) => m.show)"
         :key="menu.id"
@@ -34,7 +45,7 @@
 import { ref, markRaw, onMounted } from "vue";
 
 import SvgMarker from "@/components/Svg/SvgMarker.vue";
-import SvgAnalysis from "@/components/Svg/SvgAnalysis.vue";
+import SvgAddPin from "@/components/Svg/SvgAddPin.vue";
 import SvgDashboard from "@/components/Svg/SvgDashboard.vue";
 import SvgTable from "@/components/Svg/SvgTable.vue";
 import SvgMap from "@/components/Svg/SvgMap.vue";
@@ -45,7 +56,7 @@ const menus = ref([
     name: "บันทึก",
     role: "location",
     path: "/",
-    icon: markRaw(SvgMarker),
+    icon: markRaw(SvgAddPin),
     show: true,
   },
   {
@@ -54,14 +65,6 @@ const menus = ref([
     role: "dashboard",
     path: "/dashboard",
     icon: markRaw(SvgDashboard),
-    show: false,
-  },
-  {
-    id: "analysis-sidebar",
-    name: "วิเคราะห์",
-    role: "analysis",
-    path: "/analysis",
-    icon: markRaw(SvgAnalysis),
     show: false,
   },
   {
@@ -80,20 +83,25 @@ const menus = ref([
     icon: markRaw(SvgMap),
     show: true,
   },
+  {
+    id: "fondue-sidebar",
+    name: "Fondue",
+    role: "fondue",
+    path: "/fondue",
+    icon: markRaw(SvgMarker),
+    show: true,
+  },
 ]);
-const checkModules = async () => {
-  const modules = await $api.getModuleList();
-  if (modules) {
-    const roles = modules.roles;
-    menus.value.forEach((menu) => {
-      menu.show = roles.some((module) => module.name === menu.role);
-    });
-    isSetting.value = roles.some((module) => module.name === "settings");
+
+defineProps({
+  isMobileOpen: {
+    type: Boolean,
+    default: false
   }
-};
+});
+
+defineEmits(['close']);
+
 onMounted(async () => {
-  // if ($keycloak.authenticated) {
-  //   await checkModules();
-  // }
 });
 </script>

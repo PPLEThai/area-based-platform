@@ -1,5 +1,5 @@
 <template>
-  <footer class="app-footer bg-primary">
+  <footer class="app-footer bg-primary hidden sm:flex sm:justify-center">
     <p class="items-center flex">&copy; 2025 พรรคประชาชน. All rights reserved.</p>
   </footer>
 </template>
@@ -14,7 +14,6 @@ export default {
 .app-footer {
   color: #fff;
   height: 32px;
-  display: flex;
   text-align: center;
   justify-content: center;
   font-weight: lighter;
