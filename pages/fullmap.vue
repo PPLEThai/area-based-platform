@@ -27,7 +27,7 @@
         <ul v-if="showMenuCard">
           <li v-for="(category, index) in statistics" :key="index" class="flex justify-between items-center mb-2">
             <div class="flex items-center">
-              <span class="inline-block w-4 h-4 rounded-full mr-2" :style="{ backgroundColor: category.color }"></span>
+              <span class="inline-block w-4 h-4 mr-2" :style="{ backgroundColor: category.color }"></span>
               {{ category.name }}
             </div>
             <span class="font-medium text-gray-700">{{ category.count }}</span>
