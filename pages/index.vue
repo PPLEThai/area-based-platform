@@ -106,9 +106,31 @@
     </div>
 
     <!-- ส่วนของแผนที่ -->
-    <div class="w-5/5 md:w-3/5 h-[350px] md:h-full">
+    <div class="w-5/5 md:w-3/5 h-[350px] md:h-full relative">
+      <button @click="getCurrentLocation" :disabled="isGettingLocation"
+        class="flex items-center absolute bottom-10 left-4 z-10 bg-primary p-2 rounded-lg shadow-md hover:bg-primary">
+        <!-- marker icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="white">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+
+        <p class="ml-2 text-sm font-bold text-white">
+          {{ isGettingLocation ? 'กำลังระบุตำแหน่ง...' : 'ระบุตำแหน่งของท่าน' }}
+        </p>
+      </button>
+
+      <!-- Progress bar -->
+      <div v-if="isGettingLocation" class="absolute bottom-24 left-4 z-10 w-64 bg-white p-4 rounded-lg shadow-md">
+        <div class="w-full bg-gray-200 rounded-full h-2.5">
+          <div class="bg-primary h-2.5 rounded-full animate-pulse" style="width: 100%"></div>
+        </div>
+        <p class="text-sm text-gray-600 mt-2">กำลังค้นหาตำแหน่งของคุณ...</p>
+      </div>
+
       <MapLibreTerraDraw :mapStyle="mapStyle" :center="[100.599186, 13.736717]" :zoom="10"
-        @features-updated="updateFeatures" />
+        @features-updated="updateFeatures" @mapLoaded="onMapLoaded" />
     </div>
     <Modal :isOpen="isModalOpen" title="ยืนยันการส่งข้อมูล" message="คุณแน่ใจหรือไม่ว่าต้องการส่งข้อมูลนี้?"
       @cancel="cancelSubmit" @confirm="confirmSubmit" />
@@ -125,6 +147,7 @@ import { geojsonToWKT } from "@terraformer/wkt";
 import Dropdowns from "@/components/Dropdowns.vue";
 import MapLibreTerraDraw from "@/components/MapLibreTerraDraw.vue";
 import Modal from "@/components/Modal.vue";
+import maplibregl from "maplibre-gl";
 
 const userStore = useUserStore();
 const user = userStore.$state;
@@ -141,6 +164,8 @@ const selectedSubcategory = ref(null);
 const selectedOwnership = ref(null);
 const geom = ref([]);
 const mapStyle = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"; // free
+const mapInstance = ref(null);
+const isGettingLocation = ref(false);
 
 const ownershipList = [
   { id: 1, name: "ท้องถิ่น" },
@@ -149,7 +174,86 @@ const ownershipList = [
   { id: 4, name: "ไม่ทราบ" },
 ];
 
+const onMapLoaded = async (map) => {
+  mapInstance.value = map; // Store the MapLibre instance
+  console.log(mapInstance.value)
+};
+
 onMounted(() => { });
+
+// ฟังก์ชันสำหรับดึงตำแหน่งปัจจุบัน
+const getCurrentLocation = () => {
+  const toast = useToast();
+  isGettingLocation.value = true;
+
+  if (!navigator.geolocation) {
+    toast.error("เบราว์เซอร์ของคุณไม่รองรับการระบุตำแหน่ง");
+    isGettingLocation.value = false;
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      // ดึงพิกัดปัจจุบัน
+      const { latitude, longitude } = position.coords;
+      console.log(latitude, longitude);
+
+      // เลื่อนแผนที่ไปยังตำแหน่งปัจจุบัน
+      console.log(mapInstance);
+      if (mapInstance.value) {
+        // ลบ marker เดิมถ้ามีอยู่
+        const markers = document.getElementsByClassName('maplibregl-marker');
+        while(markers[0]) {
+          markers[0].remove();
+        }
+
+        mapInstance.value.flyTo({
+          center: [longitude, latitude],
+          zoom: 15
+        });
+
+        // สร้างจุดบนแผนที่
+        const point = {
+          type: "Feature", 
+          geometry: {
+            type: "Point",
+            coordinates: [longitude, latitude]
+          },
+          properties: {}
+        };
+
+        // สร้าง marker แสดงตำแหน่งปัจจุบัน
+        new maplibregl.Marker()
+          .setLngLat([longitude, latitude])
+          .setPopup(new maplibregl.Popup().setHTML("ตำแหน่งปัจจุบันของคุณ"))
+          .addTo(mapInstance.value);
+
+        // อัพเดทค่า geom
+        geom.value = [point];
+
+        toast.success("ระบุตำแหน่งปัจจุบันสำเร็จ");
+        isGettingLocation.value = false;
+      }
+    },
+    (error) => {
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          toast.error("กรุณาอนุญาตการเข้าถึงตำแหน่งของคุณ");
+          break;
+        case error.POSITION_UNAVAILABLE:
+          toast.error("ไม่สามารถระบุตำแหน่งของคุณได้");
+          break;
+        case error.TIMEOUT:
+          toast.error("หมดเวลาในการระบุตำแหน่ง");
+          break;
+        default:
+          toast.error("เกิดข้อผิดพลาดในการระบุตำแหน่ง");
+      }
+      isGettingLocation.value = false;
+    }
+  );
+};
+
 
 const handleSelectionChanged = (selectedDropdown) => {
   selectedCategory.value = selectedDropdown.selectedCategoryId;
