@@ -6,7 +6,7 @@
                 @mapLoaded="onMapLoaded" />
 
             <!-- Legend -->
-            <div class="legend bg-white p-4 rounded shadow-lg absolute bottom-4 left-4 z-10">
+            <div class="legend bg-white p-4 rounded shadow-lg absolute bottom-4 left-4 z-5">
                 <div class="flex flex-row justify-between items-center mb-4">
                     <h3 class="text-lg font-bold">คำอธิบาย</h3>
                     <button class="" @click="toggleMenuCard">
@@ -25,7 +25,10 @@
                     </button>
                 </div>
                 <ul v-if="showMenuCard">
-                    <li v-for="(color, type) in colorMap" :key="type" class="flex items-center mb-1">
+                    <li v-for="(color, type) in colorMap" :key="type" 
+                        class="flex items-center mb-1 cursor-pointer hover:bg-gray-100 rounded"
+                        :class="{ 'bg-gray-200': selectedTypes.includes(type) }"
+                        @click="toggleTypeFilter(type)">
                         <span :style="{ backgroundColor: color }" class="w-4 h-4 inline-block mr-2"></span>
                         {{ type }}
                     </li>
@@ -72,6 +75,7 @@ const mapInstance = ref(null);
 const geojsonUrl = "https://publicapi.traffy.in.th/teamchadchart-stat-api/geojson/v1";
 const isLoading = ref(false);
 const showMenuCard = ref(true);
+const selectedTypes = ref([]);
 
 // Color map for legend
 const colorMap = {
@@ -98,15 +102,6 @@ const colorMap = {
 const loadGeoJsonData = async () => {
     isLoading.value = true;
     try {
-        // ทดสอบโหลดข้อมูลจากไฟล์ local ก่อน
-        // const localData = await import('@/assets/data/traffy.json');
-        // if (localData) {
-        //     isLoading.value = false;
-        //     return localData.default;
-        // }
-        // data = localData.default;
-
-        // ทำการโหลดข้อมูลจาก Fondue API
         const response = await fetch(geojsonUrl);
         if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -160,6 +155,22 @@ const addMapLayers = (map, data) => {
             ],
             "circle-stroke-width": 2,
             "circle-stroke-color": "#ffffff",
+            "circle-opacity": [
+                "case",
+                ["==", ["length", ["literal", selectedTypes.value]], 0],
+                1,
+                ["in", ["at", 0, ["get", "problem_type_fondue"]], ["literal", selectedTypes.value]],
+                1,
+                0
+            ],
+            "circle-stroke-opacity": [
+                "case",
+                ["==", ["length", ["literal", selectedTypes.value]], 0],
+                1,
+                ["in", ["at", 0, ["get", "problem_type_fondue"]], ["literal", selectedTypes.value]],
+                1,
+                0
+            ]
         },
     });
 
@@ -197,8 +208,8 @@ const addMapLayers = (map, data) => {
 
         // สร้างและแสดง popup
         new maplibregl.Popup({
-            maxWidth: '500px', // เพิ่มความกว้างสูงสุดของ popup
-            className: 'custom-popup' // เพิ่ม class สำหรับการปรับแต่งเพิ่มเติม
+            maxWidth: '500px',
+            className: 'custom-popup'
         })
             .setLngLat(coordinates)
             .setHTML(popupContent)
@@ -215,21 +226,32 @@ const addMapLayers = (map, data) => {
     });
 };
 
-// ฟังก์ชันสำหรับจัดกลุ่มประเภทปัญหา
-const getProblemCategories = (features) => {
-    return features.reduce((acc, feature) => {
-        const problemTypes = feature.properties.problem_type_fondue;
-        if (Array.isArray(problemTypes)) {
-            problemTypes.forEach(type => {
-                if (!acc[type]) {
-                    acc[type] = 1;
-                } else {
-                    acc[type]++;
-                }
-            });
-        }
-        return acc;
-    }, {});
+const toggleTypeFilter = (type) => {
+    const index = selectedTypes.value.indexOf(type);
+    if (index === -1) {
+        selectedTypes.value.push(type);
+    } else {
+        selectedTypes.value.splice(index, 1);
+    }
+    
+    if (mapInstance.value) {
+        mapInstance.value.setPaintProperty('traffy-layer', 'circle-opacity', [
+            "case",
+            ["==", ["length", ["literal", selectedTypes.value]], 0],
+            1,
+            ["in", ["at", 0, ["get", "problem_type_fondue"]], ["literal", selectedTypes.value]],
+            1,
+            0
+        ]);
+        mapInstance.value.setPaintProperty('traffy-layer', 'circle-stroke-opacity', [
+            "case",
+            ["==", ["length", ["literal", selectedTypes.value]], 0],
+            1,
+            ["in", ["at", 0, ["get", "problem_type_fondue"]], ["literal", selectedTypes.value]],
+            1,
+            0
+        ]);
+    }
 };
 
 const toggleMenuCard = () => {
@@ -241,7 +263,6 @@ const onMapLoaded = async (map) => {
     mapInstance.value = map;
     try {
         const geojsonData = await loadGeoJsonData();
-
         addMapLayers(map, geojsonData);
         toast.success("ดึงข้อมูลสำเร็จ!");
     } catch (error) {
