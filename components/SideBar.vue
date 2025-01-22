@@ -1,6 +1,6 @@
 <template>
   <div :class="[
-    'drop-shadow-md bg-white flex flex-col z-30',
+    'drop-shadow-md bg-white flex flex-col z-30 sm:z-10',
     'md:relative',
     isMobileOpen ? 'fixed inset-0 w-48' : 'hidden md:flex'
   ]">
@@ -60,14 +60,6 @@ const menus = ref([
     show: true,
   },
   {
-    id: "dashboard-sidebar",
-    name: "สถิติ",
-    role: "dashboard",
-    path: "/dashboard",
-    icon: markRaw(SvgDashboard),
-    show: false,
-  },
-  {
     id: "items-sidebar",
     name: "รายการ",
     role: "items",
@@ -90,6 +82,14 @@ const menus = ref([
     path: "/fondue",
     icon: markRaw(SvgMarker),
     show: true,
+  },
+  {
+    id: "dashboard-sidebar",
+    name: "สถิติ",
+    role: "dashboard",
+    path: "/dashboard",
+    icon: markRaw(SvgDashboard),
+    show: false,
   },
 ]);
 
