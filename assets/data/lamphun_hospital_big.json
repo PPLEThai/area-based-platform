@@ -1,0 +1,188 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "PROVCODE": "51",
+          "MAINCODE": "42186",
+          "BED": 0,
+          "NAME": "พริ้นซ์ ลำพูนโรงพยาบาลทั่วไปขนาดกลาง",
+          "TYPECODE": "T7"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [99.03582, 18.563011]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "PROVCODE": "51",
+          "MAINCODE": "42015",
+          "BED": 49,
+          "NAME": "โรงพยาบาลทั่วไปขนาดกลางลำพูนใกล้หมอ",
+          "TYPECODE": "T7"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [99.042198, 18.59598]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "PROVCODE": "51",
+          "MAINCODE": "14555",
+          "BED": 0,
+          "NAME": "โรงพยาบาลทั่วไปขนาดกลางศิริเวช ลำพูน",
+          "TYPECODE": "T7"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [99.03830444, 18.56165066]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "PROVCODE": "51",
+          "MAINCODE": "42249",
+          "BED": 279,
+          "NAME": "โรงพยาบาลทั่วไปขนาดใหญ่หริภุญชัย ราม",
+          "TYPECODE": "T7"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [99.047474, 18.586366]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "PROVCODE": "51",
+          "MAINCODE": "12000",
+          "BED": 279,
+          "NAME": "โรงพยาบาลทั่วไปขนาดใหญ่หริภุญชัย เมโมเรียล",
+          "TYPECODE": "T7"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [99.04687, 18.586384]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "PROVCODE": "51",
+          "MAINCODE": "11143",
+          "BED": 30,
+          "NAME": "โรงพยาบาลทุ่งหัวช้าง",
+          "TYPECODE": "T5"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [99.029170, 17.993940]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "PROVCODE": "51",
+          "MAINCODE": "11145",
+          "BED": 30,
+          "NAME": "โรงพยาบาลบ้านธิ",
+          "TYPECODE": "T5"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [99.12747145, 18.65494675]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "PROVCODE": "51",
+          "MAINCODE": "11141",
+          "BED": 30,
+          "NAME": "โรงพยาบาลบ้านโฮ่ง",
+          "TYPECODE": "T5"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [98.818220, 18.32222]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "PROVCODE": "51",
+          "MAINCODE": "11144",
+          "BED": 75,
+          "NAME": "โรงพยาบาลป่าซาง",
+          "TYPECODE": "T5"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [98.888080, 18.44702]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "PROVCODE": "51",
+          "MAINCODE": "10714",
+          "BED": 411,
+          "NAME": "โรงพยาบาลลำพูน",
+          "TYPECODE": "T4"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [98.99494, 18.582512]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "PROVCODE": "51",
+          "MAINCODE": "11142",
+          "BED": 74,
+          "NAME": "โรงพยาบาลลี้",
+          "TYPECODE": "T5"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [98.957780, 17.77223]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "PROVCODE": "51",
+          "MAINCODE": "24956",
+          "BED": 16,
+          "NAME": "โรงพยาบาลเวียงหนองล่อง",
+          "TYPECODE": "T5"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [98.74665856, 18.42508621]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "PROVCODE": "51",
+          "MAINCODE": "11140",
+          "BED": 30,
+          "NAME": "โรงพยาบาลแม่ทา",
+          "TYPECODE": "T5"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [99.12971818, 18.46132844]
+        }
+      }
+    ]
+  }
+  
