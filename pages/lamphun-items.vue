@@ -83,7 +83,7 @@
     </div>
 
     <div id="map-container" class="w-full h-[200px] md:w-[30%] md:h-full">
-      <MapLibre :mapStyle="mapStyle" :center="[100.523186, 13.736717]" :zoom="10" :features="geoJsonFeatures"
+      <MapLibreLamphunMap :mapStyle="mapStyle" :center="[98.952368, 17.991376]" :zoom="8" :features="geoJsonFeatures"
         @fitBoundingBox="fitBoundingBoxOnMap" ref="mapRef" />
     </div>
 
@@ -102,8 +102,8 @@
           <div class="h-full">
             <div class="h-full">
               <div class="h-[300px] w-full sm:h-full ">
-                <MapLibreEditModal :mapStyle="mapStyle" :center="[100.523186, 13.736717]" 
-                @features-updated="updateFeatures" :zoom="10" ref="editMapRef" :geom="editForm.geom" />
+                <MapLibreEditModal :mapStyle="mapStyle" :center="[98.952368, 17.991376]" 
+                @features-updated="updateFeatures" :zoom="8" ref="editMapRef" :geom="editForm.geom" />
                 {{ editForm.geom }}
               </div>
             </div>
@@ -148,7 +148,7 @@ import EditModal from "@/components/EditModal.vue";
 import { useToast } from "vue-toastification";
 import { useUrbanIssues } from "@/composables/useUrbanIssues";
 import * as Terraformer from "@terraformer/wkt";
-import MapLibreTerraDraw from '~/components/MapLibreTerraDraw.vue';
+import MapLibreLamphunMap from '~/components/MapLibreLamphunMap.vue';
 
 const userStore = useUserStore();
 const user = userStore.$state;

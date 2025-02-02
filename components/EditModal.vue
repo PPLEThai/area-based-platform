@@ -3,7 +3,7 @@
     v-if="isOpen"
     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
   >
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-lg">
+    <div class="bg-white rounded-lg shadow-xl w-full sm:max-w-[1000px] md:h-auto">
       <!-- Modal Header -->
       <div class="flex justify-between items-center px-4 py-3 border-b border-gray-300">
         <h2 class="text-lg font-semibold">{{ title }}</h2>

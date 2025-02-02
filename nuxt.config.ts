@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   css: [
     '~/assets/css/tailwind.css',
     "@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css",
@@ -20,7 +20,7 @@ export default defineNuxtConfig({
   build: { transpile: ['vue-toastification'] },
   runtimeConfig: {
     public: {
-      systemName: process.env.SYSTEM_NAME || 'กระบวนการเดินเมือง',
+      systemName: process.env.SYSTEM_NAME || 'องค์การบริหารส่วนจังหวัดลำพูน',
       apiBaseUrl: process.env.API_BASE_URL || 'http://localhost:3123',
     },
   },

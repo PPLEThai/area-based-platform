@@ -129,7 +129,7 @@
         <p class="text-sm text-gray-600 mt-2">กำลังค้นหาตำแหน่งของคุณ...</p>
       </div>
 
-      <MapLibreLamphun :mapStyle="mapStyle" :center="[98.952368, 17.991376]" :zoom="8.4"
+      <MapLibreTerraDraw :mapStyle="mapStyle" :center="[100.599186, 13.736717]" :zoom="10"
         @features-updated="updateFeatures" @mapLoaded="onMapLoaded" />
     </div>
     <Modal :isOpen="isModalOpen" title="ยืนยันการส่งข้อมูล" message="คุณแน่ใจหรือไม่ว่าต้องการส่งข้อมูลนี้?"
@@ -145,7 +145,7 @@ import { useUrbanIssues } from "@/composables/useUrbanIssues";
 import { useToast } from "vue-toastification";
 import { geojsonToWKT } from "@terraformer/wkt";
 import Dropdowns from "@/components/Dropdowns.vue";
-import MapLibreLamphun from "@/components/MapLibreLamphun.vue";
+import MapLibreTerraDraw from "@/components/MapLibreTerraDraw.vue";
 import Modal from "@/components/Modal.vue";
 import maplibregl from "maplibre-gl";
 
@@ -163,9 +163,7 @@ const selectedCategory = ref(null);
 const selectedSubcategory = ref(null);
 const selectedOwnership = ref(null);
 const geom = ref([]);
-// const mapStyle = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"; // free
-// const mapStyle = ref("https://api.maptiler.com/maps/darkmatter/style.json?key=DMl4AxokgMPvgzLikrFx");
-const mapStyle = ref("https://api.maptiler.com/maps/streets-v2/style.json?key=DMl4AxokgMPvgzLikrFx");
+const mapStyle = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"; // free
 const mapInstance = ref(null);
 const isGettingLocation = ref(false);
 
