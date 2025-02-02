@@ -23,15 +23,27 @@
     </div>
 
     <!-- Legend -->
-    <div class="legend bg-white p-4 rounded shadow-lg absolute bottom-4 left-4 z-10">
+    <div class="legend bg-white p-4 rounded shadow-lg absolute bottom-4 left-4 z-10 w-48">
       <h3 class="font-bold mb-2">Legend</h3>
       <div class="flex items-center mb-2">
         <span class="inline-block w-4 h-4 mr-2 bg-red-500"></span>
-        <span>หมู่บ้าน</span>
+        <p>หมู่บ้าน</p>
       </div>
       <div class="flex items-center mb-2">
         <span class="inline-block w-4 h-4 mr-2 bg-blue-500 opacity-50"></span>
-        <span>น้ำท่วม</span>
+        <p>น้ำท่วม</p>
+      </div>
+      <div class="flex items-center mb-2">
+        <span class="inline-block w-4 h-4 mr-2 bg-purple-500 opacity-50"></span>
+        <p>ความหนาแน่นประชากร</p>
+      </div>
+      <div class="flex items-center mb-2">
+        <span class="inline-block w-4 h-4 mr-2 bg-green-500"></span>
+        <p>โรงพยาบาล</p>
+      </div>
+      <div class="flex items-center mb-2">
+        <span class="inline-block w-4 h-4 mr-2 bg-blue-500"></span>
+        <p>โรงพยาบาลขนาดใหญ่</p>
       </div>
     </div>
 
@@ -49,6 +61,8 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import villageData from '@/assets/data/lamphun_village.json';
 import floodData from '@/assets/data/lamphun_flood.json';
+import hospitalData from '@/assets/data/lamphun_hospital.json';
+import bigHospitalData from '@/assets/data/lamphun_hospital_big.json';
 import { useLamphunBoundary, useLamphunDistrictBoundary } from "@/composables/useBoundary";
 import LayerSelection from './LayerSelection.vue';
 
@@ -360,6 +374,100 @@ const initializeMap = async () => {
     });
     
     map.value.on('mouseleave', 'village-layer', () => {
+      map.value.getCanvas().style.cursor = '';
+    });
+
+    // เพิ่ม GeoJSON source สำหรับโรงพยาบาล
+    map.value.addSource('hospital-points', {
+      type: 'geojson',
+      data: hospitalData
+    });
+
+    // เพิ่ม layer แสดงจุดโรงพยาบาล
+    map.value.addLayer({
+      id: 'hospital-layer',
+      type: 'circle',
+      source: 'hospital-points',
+      paint: {
+        'circle-radius': 5,
+        'circle-color': '#00FF00', // สีเขียวสำหรับโรงพยาบาล
+        'circle-opacity': 0.8,
+        'circle-stroke-width': 1,
+        'circle-stroke-color': '#ffffff'
+      }
+    });
+
+    // เพิ่ม popup เมื่อคลิกที่จุดโรงพยาบาล
+    map.value.on('click', 'hospital-layer', (e) => {
+      const coordinates = e.features[0].geometry.coordinates.slice();
+      const hospitalName = e.features[0].properties.Name;
+      
+      new maplibregl.Popup()
+        .setLngLat(coordinates)
+        .setHTML(`<h3>${hospitalName}</h3>`)
+        .addTo(map.value);
+    });
+
+    // เปลี่ยน cursor เมื่อ hover บนจุดโรงพยาบาล
+    map.value.on('mouseenter', 'hospital-layer', () => {
+      map.value.getCanvas().style.cursor = 'pointer';
+    });
+    
+    map.value.on('mouseleave', 'hospital-layer', () => {
+      map.value.getCanvas().style.cursor = '';
+    });
+
+    // เพิ่ม GeoJSON source สำหรับโรงพยาบาลขนาดใหญ่
+    map.value.addSource('big-hospital-points', {
+      type: 'geojson',
+      data: bigHospitalData
+    });
+
+    // เพิ่ม layer แสดงรัศมีรอบโรงพยาบาลขนาดใหญ่
+    map.value.addLayer({
+      id: 'big-hospital-radius',
+      type: 'circle',
+      source: 'big-hospital-points',
+      paint: {
+        'circle-radius': 60, // รัศมี 1000 เมตร
+        'circle-color': '#0000FF',
+        'circle-opacity': 0.2,
+        'circle-stroke-width': 1,
+        'circle-stroke-color': '#0000FF'
+      }
+    });
+
+    // เพิ่ม layer แสดงจุดโรงพยาบาลขนาดใหญ่
+    map.value.addLayer({
+      id: 'big-hospital-layer',
+      type: 'circle',
+      source: 'big-hospital-points',
+      paint: {
+        'circle-radius': 7,
+        'circle-color': '#0000FF', // สีน้ำเงินสำหรับโรงพยาบาลขนาดใหญ่
+        'circle-opacity': 0.8,
+        'circle-stroke-width': 1,
+        'circle-stroke-color': '#ffffff'
+      }
+    });
+
+    // เพิ่ม popup เมื่อคลิกที่จุดโรงพยาบาลขนาดใหญ่
+    map.value.on('click', 'big-hospital-layer', (e) => {
+      const coordinates = e.features[0].geometry.coordinates.slice();
+      const hospitalName = e.features[0].properties.NAME;
+      
+      new maplibregl.Popup()
+        .setLngLat(coordinates)
+        .setHTML(`<h3>${hospitalName}</h3>`)
+        .addTo(map.value);
+    });
+
+    // เปลี่ยน cursor เมื่อ hover บนจุดโรงพยาบาลขนาดใหญ่
+    map.value.on('mouseenter', 'big-hospital-layer', () => {
+      map.value.getCanvas().style.cursor = 'pointer';
+    });
+    
+    map.value.on('mouseleave', 'big-hospital-layer', () => {
       map.value.getCanvas().style.cursor = '';
     });
   });
