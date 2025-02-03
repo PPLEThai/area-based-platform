@@ -16,11 +16,14 @@ import { useToast } from "vue-toastification";
 import { useCategories } from "@/composables/useCategories";
 import { Popup } from "maplibre-gl"; // Import Popup from MapLibre
 
+import MapLibreLamphunMap from "@/components/Lamphun/MapLibreLamphunMap.vue";
+
 const toast = useToast();
 const categoryList = useCategories();
 
-const mapStyle = ref("https://api.maptiler.com/maps/streets-v2/style.json?key=DMl4AxokgMPvgzLikrFx");
-// const mapStyle = ref("https://api.maptiler.com/maps/darkmatter/style.json?key=DMl4AxokgMPvgzLikrFx");
+// const mapStyle = ref("https://api.maptiler.com/maps/streets-v2/style.json?key=DMl4AxokgMPvgzLikrFx");
+
+const mapStyle = ref("https://basemaps.cartocdn.com/gl/positron-gl-style/style.json");
 const mapInstance = ref(null);
 
 const statistics = reactive([]);

@@ -20,7 +20,7 @@
             <img class="h-8 w-auto" src="/images/logo-pp.png" alt="โลโก้พรรคประชาชน" />
             <div class="ml-4">
               <h1 class="text-lg font-bold text-gray-900">Hackable City</h1>
-              <p class="text-sm text-gray-500">{{ systemName }}</p>
+              <p class="text-sm text-gray-500">{{ displaySystemName }}</p>
             </div>
           </NuxtLink>
 
@@ -45,6 +45,8 @@
 
 <script setup>
 import { useUserStore } from '@/stores/useStore';
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 
 const emit = defineEmits(['toggle-sidebar']);
 
@@ -52,6 +54,18 @@ const config = useRuntimeConfig();
 const systemName = config.public.systemName;
 const userStore = useUserStore();
 const user = userStore.$state;
+const route = useRoute();
+
+const displaySystemName = computed(() => {
+  const path = route.path;
+  if (path.startsWith('/bangkok')) {
+    return 'กรุงเทพมหานคร';
+  } else if (path.startsWith('/lamphun')) {
+    return 'องค์การบริหารส่วนจังหวัดลำพูน';
+  } else {
+    return 'กระบวนการเดินเมือง';
+  }
+});
 
 const logout = () => {
   window.location.href = '/oauth2/sign_out';
