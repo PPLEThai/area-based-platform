@@ -34,21 +34,23 @@
         <p>น้ำท่วม</p>
       </div>
       <div class="flex items-center mb-2">
-        <span class="inline-block w-4 h-4 mr-2 bg-purple-500 opacity-50"></span>
-        <p>ความหนาแน่นประชากร</p>
-      </div>
-      <div class="flex items-center mb-2">
         <span class="inline-block w-4 h-4 mr-2 bg-green-500"></span>
-        <p>โรงพยาบาล</p>
+        <p>รพ.สต.</p>
       </div>
       <div class="flex items-center mb-2">
         <span class="inline-block w-4 h-4 mr-2 bg-blue-500"></span>
-        <p>โรงพยาบาลขนาดใหญ่</p>
+        <p>โรงพยาบาลศูนย์</p>
       </div>
     </div>
 
     <!-- Layer Selection -->
-    <!-- <LayerSelection @update:layers="handleLayerUpdate" /> -->
+    <div class="absolute top-4 right-4 z-10 bg-white p-4 rounded shadow-lg">
+      <h3 class="font-bold mb-2">Filter Layers</h3>
+      <div v-for="(visible, layer) in layers" :key="layer" class="flex items-center mb-2">
+        <input type="checkbox" v-model="layers[layer]" :id="layer" class="mr-2" />
+        <label :for="layer">{{ layerLabels[layer] }}</label>
+      </div>
+    </div>
 
     <!-- Map Container -->
     <div ref="mapContainer" class="w-full h-full"></div>
@@ -59,11 +61,14 @@
 import { ref, onMounted, nextTick, watch } from "vue";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import villageData from '@/assets/data/lamphun_village.json';
-import floodData from '@/assets/data/lamphun_flood.json';
-import hospitalData from '@/assets/data/lamphun_hospital.json';
-import bigHospitalData from '@/assets/data/lamphun_hospital_big.json';
-import { useLamphunBoundary, useLamphunDistrictBoundary } from "@/composables/useBoundary";
+import villageData from "@/assets/data/lamphun_village.json";
+import floodData from "@/assets/data/lamphun_flood.json";
+import hospitalData from "@/assets/data/lamphun_hospital.json";
+import bigHospitalData from "@/assets/data/lamphun_hospital_big.json";
+import {
+  useLamphunBoundary,
+  useLamphunDistrictBoundary,
+} from "@/composables/useBoundary";
 
 const props = defineProps({
   mapStyle: {
@@ -98,8 +103,19 @@ const errorMessage = ref("");
 // Layer visibility state
 const layers = ref({
   districtBoundary: true,
-  lamphunBoundary: true,
+  floodArea: true,
+  villagePoints: true,
+  hospitalPoints: true,
+  bigHospitalPoints: true,
 });
+
+const layerLabels = {
+  districtBoundary: "อำเภอ",
+  floodArea: "น้ำท่วมซ้ำซาก",
+  villagePoints: "หมู่บ้าน",
+  hospitalPoints: "รพ.สต.",
+  bigHospitalPoints: "โรงพยาบาลศูนย์",
+};
 
 // Watch for layer visibility changes
 watch(
@@ -108,19 +124,38 @@ watch(
     if (!map.value) return;
 
     // Toggle district boundary layer
-    const districtOpacity = newLayers.districtBoundary ? 0.4 : 0;
-    map.value.setPaintProperty(
-      'district-boundary-layer',
-      'line-opacity',
-      districtOpacity
+    map.value.setLayoutProperty(
+      "district-boundary-layer",
+      "visibility",
+      newLayers.districtBoundary ? "visible" : "none"
     );
 
-    // Toggle BKK boundary layer
-    const lamphunOpacity = newLayers.lamphunBoundary ? 1 : 0;
-    map.value.setPaintProperty(
-      'lamphun-boundary-layer',
-      'line-opacity',
-      lamphunOpacity
+    // Toggle flood area layer
+    map.value.setLayoutProperty(
+      "flood-layer",
+      "visibility",
+      newLayers.floodArea ? "visible" : "none"
+    );
+
+    // Toggle village points layer
+    map.value.setLayoutProperty(
+      "village-layer",
+      "visibility",
+      newLayers.villagePoints ? "visible" : "none"
+    );
+
+    // Toggle hospital points layer
+    map.value.setLayoutProperty(
+      "hospital-layer",
+      "visibility",
+      newLayers.hospitalPoints ? "visible" : "none"
+    );
+
+    // Toggle big hospital points layer
+    map.value.setLayoutProperty(
+      "big-hospital-layer",
+      "visibility",
+      newLayers.bigHospitalPoints ? "visible" : "none"
     );
   },
   { deep: true }
@@ -168,108 +203,8 @@ const selectResult = (result) => {
   searchQuery.value = "";
 };
 
-const handleLayerUpdate = ({ community, districtBoundary, bkkBoundary }) => {
-  if (!map.value) return;
-
-  // จัดการ community layer
-  if (community) {
-    // ถ้ายังไม่มี source ให้เพิ่มใหม่
-    if (!map.value.getSource('community-points')) {
-      map.value.addSource('community-points', {
-        type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: community.data.map(item => ({
-            type: 'Feature',
-            geometry: {
-              type: 'Point',
-              coordinates: [item.longitude, item.latitude]
-            },
-            properties: {
-              name: item.name,
-              type_id: item.type_id
-            }
-          }))
-        }
-      });
-
-      // เพิ่ม layer ถ้ายังไม่มี
-      if (!map.value.getLayer('community-layer')) {
-        map.value.addLayer({
-          id: 'community-layer',
-          type: 'circle',
-          source: 'community-points',
-          paint: {
-            'circle-radius': 6,
-            'circle-color': [
-              'match',
-              ['get', 'type_id'],
-              1, '#FF0000',  // ประเภท 1 - สีแดง
-              2, '#00FF00',  // ประเภท 2 - สีเขียว
-              3, '#0000FF',  // ประเภท 3 - สีน้ำเงิน
-              4, '#FFFF00',  // ประเภท 4 - สีเหลือง
-              5, '#FF00FF',  // ประเภท 5 - สีม่วง
-              6, '#00FFFF',  // ประเภท 6 - สีฟ้า
-              '#888888'      // ค่าอื่นๆ - สีเทา
-            ],
-            'circle-opacity': 0.8,
-            'circle-stroke-width': 1,
-            'circle-stroke-color': '#ffffff'
-          },
-          layout: {
-            'visibility': 'none' // Set initial visibility to none
-          }
-        });
-
-        // เพิ่ม popup และ events
-        map.value.on('click', 'community-layer', (e) => {
-          const coordinates = e.features[0].geometry.coordinates.slice();
-          const name = e.features[0].properties.name;
-          
-          new maplibregl.Popup()
-            .setLngLat(coordinates)
-            .setHTML(`<h3>${name}</h3>`)
-            .addTo(map.value);
-        });
-
-        map.value.on('mouseenter', 'community-layer', () => {
-          map.value.getCanvas().style.cursor = 'pointer';
-        });
-        
-        map.value.on('mouseleave', 'community-layer', () => {
-          map.value.getCanvas().style.cursor = '';
-        });
-      }
-    }
-
-    // ปรับการแสดงผล layer
-    map.value.setLayoutProperty(
-      'community-layer',
-      'visibility',
-      community.visible ? 'visible' : 'none'
-    );
-  }
-
-  // จัดการ district boundary layer
-  if (map.value.getLayer('district-boundary-layer')) {
-    const districtOpacity = districtBoundary ? 0.4 : 0;
-    map.value.setPaintProperty(
-      'district-boundary-layer',
-      'line-opacity',
-      districtOpacity
-    );
-  }
-
-  // จัดการ BKK boundary layer
-  if (map.value.getLayer('bkk-boundary-layer')) {
-    const bkkOpacity = bkkBoundary ? 1 : 0;
-    map.value.setPaintProperty(
-      'bkk-boundary-layer',
-      'line-opacity',
-      bkkOpacity
-    );
-  }
-};
+const metersToPixelsAtMaxZoom = (meters, latitude) =>
+  meters / 0.075 / Math.cos((latitude * Math.PI) / 180);
 
 const initializeMap = async () => {
   await nextTick();
@@ -297,8 +232,8 @@ const initializeMap = async () => {
 
     // Add flood data source
     map.value.addSource("flood-area", {
-      type: "geojson", 
-      data: floodData
+      type: "geojson",
+      data: floodData,
     });
 
     // Add flood layer
@@ -309,8 +244,11 @@ const initializeMap = async () => {
       paint: {
         "fill-color": "#0066ff",
         "fill-opacity": 0.5,
-        "fill-outline-color": "#0044aa"
-      }
+        "fill-outline-color": "#0044aa",
+      },
+      layout: {
+        visibility: layers.value.floodArea ? "visible" : "none",
+      },
     });
 
     // Add boundary layers
@@ -321,7 +259,7 @@ const initializeMap = async () => {
       paint: {
         "line-color": "#ff6a13",
         "line-width": 2,
-        "line-opacity": layers.value.lamphunBoundary ? 1 : 0,
+        "line-opacity": layers.value.districtBoundary ? 1 : 0,
       },
     });
 
@@ -337,30 +275,30 @@ const initializeMap = async () => {
     });
 
     // เพิ่ม GeoJSON source สำหรับหมู่บ้าน
-    map.value.addSource('village-points', {
-      type: 'geojson',
-      data: villageData
+    map.value.addSource("village-points", {
+      type: "geojson",
+      data: villageData,
     });
 
     // เพิ่ม layer แสดงจุดหมู่บ้าน
     map.value.addLayer({
-      id: 'village-layer',
-      type: 'circle',
-      source: 'village-points',
+      id: "village-layer",
+      type: "circle",
+      source: "village-points",
       paint: {
-        'circle-radius': 3,
-        'circle-color': '#FF0000', // สีแดงสำหรับหมู่บ้าน
-        'circle-opacity': 0.8,
-        'circle-stroke-width': 1,
-        'circle-stroke-color': '#ffffff'
-      }
+        "circle-radius": 3,
+        "circle-color": "#FF0000", // สีแดงสำหรับหมู่บ้าน
+        "circle-opacity": 0.8,
+        "circle-stroke-width": 1,
+        "circle-stroke-color": "#ffffff",
+      },
     });
 
     // เพิ่ม popup เมื่อคลิกที่จุดหมู่บ้าน
-    map.value.on('click', 'village-layer', (e) => {
+    map.value.on("click", "village-layer", (e) => {
       const coordinates = e.features[0].geometry.coordinates.slice();
       const villageName = e.features[0].properties.v_name_t;
-      
+
       new maplibregl.Popup()
         .setLngLat(coordinates)
         .setHTML(`<h3>${villageName}</h3>`)
@@ -368,39 +306,39 @@ const initializeMap = async () => {
     });
 
     // เปลี่ยน cursor เมื่อ hover บนจุดหมู่บ้าน
-    map.value.on('mouseenter', 'village-layer', () => {
-      map.value.getCanvas().style.cursor = 'pointer';
+    map.value.on("mouseenter", "village-layer", () => {
+      map.value.getCanvas().style.cursor = "pointer";
     });
-    
-    map.value.on('mouseleave', 'village-layer', () => {
-      map.value.getCanvas().style.cursor = '';
+
+    map.value.on("mouseleave", "village-layer", () => {
+      map.value.getCanvas().style.cursor = "";
     });
 
     // เพิ่ม GeoJSON source สำหรับโรงพยาบาล
-    map.value.addSource('hospital-points', {
-      type: 'geojson',
-      data: hospitalData
+    map.value.addSource("hospital-points", {
+      type: "geojson",
+      data: hospitalData,
     });
 
     // เพิ่ม layer แสดงจุดโรงพยาบาล
     map.value.addLayer({
-      id: 'hospital-layer',
-      type: 'circle',
-      source: 'hospital-points',
+      id: "hospital-layer",
+      type: "circle",
+      source: "hospital-points",
       paint: {
-        'circle-radius': 5,
-        'circle-color': '#00FF00', // สีเขียวสำหรับโรงพยาบาล
-        'circle-opacity': 0.8,
-        'circle-stroke-width': 1,
-        'circle-stroke-color': '#ffffff'
-      }
+        "circle-radius": 5,
+        "circle-color": "#00FF00", // สีเขียวสำหรับโรงพยาบาล
+        "circle-opacity": 0.8,
+        "circle-stroke-width": 1,
+        "circle-stroke-color": "#ffffff",
+      },
     });
 
     // เพิ่ม popup เมื่อคลิกที่จุดโรงพยาบาล
-    map.value.on('click', 'hospital-layer', (e) => {
+    map.value.on("click", "hospital-layer", (e) => {
       const coordinates = e.features[0].geometry.coordinates.slice();
       const hospitalName = e.features[0].properties.Name;
-      
+
       new maplibregl.Popup()
         .setLngLat(coordinates)
         .setHTML(`<h3>${hospitalName}</h3>`)
@@ -408,53 +346,59 @@ const initializeMap = async () => {
     });
 
     // เปลี่ยน cursor เมื่อ hover บนจุดโรงพยาบาล
-    map.value.on('mouseenter', 'hospital-layer', () => {
-      map.value.getCanvas().style.cursor = 'pointer';
+    map.value.on("mouseenter", "hospital-layer", () => {
+      map.value.getCanvas().style.cursor = "pointer";
     });
-    
-    map.value.on('mouseleave', 'hospital-layer', () => {
-      map.value.getCanvas().style.cursor = '';
+
+    map.value.on("mouseleave", "hospital-layer", () => {
+      map.value.getCanvas().style.cursor = "";
     });
 
     // เพิ่ม GeoJSON source สำหรับโรงพยาบาลขนาดใหญ่
-    map.value.addSource('big-hospital-points', {
-      type: 'geojson',
-      data: bigHospitalData
+    map.value.addSource("big-hospital-points", {
+      type: "geojson",
+      data: bigHospitalData,
     });
 
     // เพิ่ม layer แสดงรัศมีรอบโรงพยาบาลขนาดใหญ่
     map.value.addLayer({
-      id: 'big-hospital-radius',
-      type: 'circle',
-      source: 'big-hospital-points',
+      id: "big-hospital-radius",
+      type: "circle",
+      source: "big-hospital-points",
       paint: {
-        'circle-radius': 60, // รัศมี 1000 เมตร
-        'circle-color': '#0000FF',
-        'circle-opacity': 0.2,
-        'circle-stroke-width': 1,
-        'circle-stroke-color': '#0000FF'
-      }
+        "circle-radius": {
+          stops: [
+            [0, 0],
+            [20, metersToPixelsAtMaxZoom(15000, 17.991376)],
+          ],
+          base: 2,
+        },
+        "circle-color": "#0000FF",
+        "circle-opacity": 0.2,
+        "circle-stroke-width": 1,
+        "circle-stroke-color": "#0000FF",
+      },
     });
 
     // เพิ่ม layer แสดงจุดโรงพยาบาลขนาดใหญ่
     map.value.addLayer({
-      id: 'big-hospital-layer',
-      type: 'circle',
-      source: 'big-hospital-points',
+      id: "big-hospital-layer",
+      type: "circle",
+      source: "big-hospital-points",
       paint: {
-        'circle-radius': 7,
-        'circle-color': '#0000FF', // สีน้ำเงินสำหรับโรงพยาบาลขนาดใหญ่
-        'circle-opacity': 0.8,
-        'circle-stroke-width': 1,
-        'circle-stroke-color': '#ffffff'
-      }
+        "circle-radius": 7,
+        "circle-color": "#0000FF", // สีน้ำเงินสำหรับโรงพยาบาลขนาดใหญ่
+        "circle-opacity": 0.8,
+        "circle-stroke-width": 1,
+        "circle-stroke-color": "#ffffff",
+      },
     });
 
     // เพิ่ม popup เมื่อคลิกที่จุดโรงพยาบาลขนาดใหญ่
-    map.value.on('click', 'big-hospital-layer', (e) => {
+    map.value.on("click", "big-hospital-layer", (e) => {
       const coordinates = e.features[0].geometry.coordinates.slice();
       const hospitalName = e.features[0].properties.NAME;
-      
+
       new maplibregl.Popup()
         .setLngLat(coordinates)
         .setHTML(`<h3>${hospitalName}</h3>`)
@@ -462,12 +406,12 @@ const initializeMap = async () => {
     });
 
     // เปลี่ยน cursor เมื่อ hover บนจุดโรงพยาบาลขนาดใหญ่
-    map.value.on('mouseenter', 'big-hospital-layer', () => {
-      map.value.getCanvas().style.cursor = 'pointer';
+    map.value.on("mouseenter", "big-hospital-layer", () => {
+      map.value.getCanvas().style.cursor = "pointer";
     });
-    
-    map.value.on('mouseleave', 'big-hospital-layer', () => {
-      map.value.getCanvas().style.cursor = '';
+
+    map.value.on("mouseleave", "big-hospital-layer", () => {
+      map.value.getCanvas().style.cursor = "";
     });
   });
 };

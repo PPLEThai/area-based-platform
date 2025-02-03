@@ -13,45 +13,95 @@
       <form @submit.prevent="openConfirmModal">
         <div class="grid gap-6 mb-6 grid-cols-1 md:grid-cols-1">
           <div>
-            <label for="title-name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            <label
+              for="title-name"
+              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >
               หัวข้อ
             </label>
-            <input type="text" id="title-name" v-model="titleName"
+            <input
+              type="text"
+              id="title-name"
+              v-model="titleName"
               class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-              placeholder="เช่น ปรับปรุงพื้นที่รกร้าง" />
+              placeholder="เช่น ปรับปรุงพื้นที่รกร้าง"
+            />
             <p v-if="isSubmitted && !titleName.trim()" class="text-red-500 text-sm">
               กรุณากรอกหัวข้อ
             </p>
           </div>
 
           <div>
-            <Dropdowns :resetTrigger="resetDropdown" @selection-changed="handleSelectionChanged" />
-            <p v-if="isSubmitted && (!selectedCategory || !selectedSubcategory)" class="text-red-500 text-sm">
+            <Dropdowns
+              :resetTrigger="resetDropdown"
+              @selection-changed="handleSelectionChanged"
+            />
+            <p
+              v-if="isSubmitted && (!selectedCategory || !selectedSubcategory)"
+              class="text-red-500 text-sm"
+            >
               กรุณาเลือกหมวดหมู่และหมวดหมู่ย่อย
             </p>
           </div>
 
-          <div>
-            <label for="category" class="block text-sm font-medium text-gray-700">การถือครอง</label>
-            <select id="category" v-model="selectedOwnership"
-              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-              <option value="null" disabled>เลือกการถือครอง</option>
-              <option v-for="owner in ownershipList" :key="owner.id" :value="owner.id">
-                {{ owner.name }}
-              </option>
-            </select>
-            <p v-if="isSubmitted && !selectedOwnership" class="text-red-500 text-sm">
-              กรุณาเลือกการถือครอง
-            </p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="category" class="block text-sm font-medium text-gray-700"
+                >การถือครอง</label
+              >
+              <select
+                id="category"
+                v-model="selectedOwnership"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              >
+                <option value="null" disabled>เลือกการถือครอง</option>
+                <option v-for="owner in ownershipList" :key="owner.id" :value="owner.id">
+                  {{ owner.name }}
+                </option>
+              </select>
+              <p v-if="isSubmitted && !selectedOwnership" class="text-red-500 text-sm">
+                กรุณาเลือกการถือครอง
+              </p>
+            </div>
+
+            <div>
+              <label for="category" class="block text-sm font-medium text-gray-700"
+                >ผู้มีส่วนได้ส่วนเสีย</label
+              >
+              <select
+                id="category"
+                v-model="selectedStakeholder"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              >
+                <option value="null" disabled>เลือกผู้มีส่วนได้ส่วนเสีย</option>
+                <option
+                  v-for="stackholder in stackholderList"
+                  :key="stackholder.id"
+                  :value="stackholder.id"
+                >
+                  {{ stackholder.name }}
+                </option>
+              </select>
+              <p v-if="isSubmitted && !selectedStakeholder" class="text-red-500 text-sm">
+                กรุณาเลือกผู้มีส่วนได้ส่วนเสีย
+              </p>
+            </div>
           </div>
 
           <div>
-            <label for="detail-name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            <label
+              for="detail-name"
+              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >
               รายละเอียด
             </label>
-            <textarea id="detail-name" rows="4" v-model="detailName"
+            <textarea
+              id="detail-name"
+              rows="4"
+              v-model="detailName"
               class="block p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              placeholder="ใส่รายละเอียดที่นี่"></textarea>
+              placeholder="ใส่รายละเอียดที่นี่"
+            ></textarea>
             <p v-if="isSubmitted && !detailName.trim()" class="text-red-500 text-sm">
               กรุณากรอกรายละเอียด
             </p>
@@ -98,8 +148,10 @@
           </div>
         </div> -->
 
-        <button type="submit"
-          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">
+        <button
+          type="submit"
+          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center"
+        >
           Submit
         </button>
       </form>
@@ -107,39 +159,73 @@
 
     <!-- ส่วนของแผนที่ -->
     <div class="w-5/5 md:w-3/5 h-[350px] md:h-full relative">
-      <button @click="getCurrentLocation" :disabled="isGettingLocation"
-        class="flex items-center absolute bottom-10 left-4 z-10 bg-primary p-2 rounded-lg shadow-md hover:bg-primary">
+      <button
+        @click="getCurrentLocation"
+        :disabled="isGettingLocation"
+        class="flex items-center absolute bottom-10 left-4 z-10 bg-primary p-2 rounded-lg shadow-md hover:bg-primary"
+      >
         <!-- marker icon -->
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="white">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="white"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+          />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+          />
         </svg>
 
         <p class="ml-2 text-sm font-bold text-white">
-          {{ isGettingLocation ? 'กำลังระบุตำแหน่ง...' : 'ระบุตำแหน่งของท่าน' }}
+          {{ isGettingLocation ? "กำลังระบุตำแหน่ง..." : "ระบุตำแหน่งของท่าน" }}
         </p>
       </button>
 
       <!-- Progress bar -->
-      <div v-if="isGettingLocation" class="absolute bottom-24 left-4 z-10 w-64 bg-white p-4 rounded-lg shadow-md">
+      <div
+        v-if="isGettingLocation"
+        class="absolute bottom-24 left-4 z-10 w-64 bg-white p-4 rounded-lg shadow-md"
+      >
         <div class="w-full bg-gray-200 rounded-full h-2.5">
-          <div class="bg-primary h-2.5 rounded-full animate-pulse" style="width: 100%"></div>
+          <div
+            class="bg-primary h-2.5 rounded-full animate-pulse"
+            style="width: 100%"
+          ></div>
         </div>
         <p class="text-sm text-gray-600 mt-2">กำลังค้นหาตำแหน่งของคุณ...</p>
       </div>
 
-      <MapLibreTerraDraw :mapStyle="mapStyle" :center="[100.599186, 13.736717]" :zoom="10"
-        @features-updated="updateFeatures" @mapLoaded="onMapLoaded" />
+      <MapLibreTerraDraw
+        :mapStyle="mapStyle"
+        :center="[100.599186, 13.736717]"
+        :zoom="10"
+        @features-updated="updateFeatures"
+        @mapLoaded="onMapLoaded"
+      />
     </div>
-    <Modal :isOpen="isModalOpen" title="ยืนยันการส่งข้อมูล" message="คุณแน่ใจหรือไม่ว่าต้องการส่งข้อมูลนี้?"
-      @cancel="cancelSubmit" @confirm="confirmSubmit" />
+    <Modal
+      :isOpen="isModalOpen"
+      title="ยืนยันการส่งข้อมูล"
+      message="คุณแน่ใจหรือไม่ว่าต้องการส่งข้อมูลนี้?"
+      @cancel="cancelSubmit"
+      @confirm="confirmSubmit"
+    />
   </div>
 </template>
 
 <script setup>
-import { useUserStore } from '@/stores/useStore';
-import { useRouter } from '#app';
+import { useUserStore } from "@/stores/useStore";
+import { useRouter } from "#app";
 import { ref, onMounted } from "vue";
 import { useUrbanIssues } from "@/composables/useUrbanIssues";
 import { useToast } from "vue-toastification";
@@ -162,6 +248,7 @@ const detailName = ref("");
 const selectedCategory = ref(null);
 const selectedSubcategory = ref(null);
 const selectedOwnership = ref(null);
+const selectedStakeholder = ref(null);
 const geom = ref([]);
 const mapStyle = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"; // free
 const mapInstance = ref(null);
@@ -174,12 +261,19 @@ const ownershipList = [
   { id: 4, name: "ไม่ทราบ" },
 ];
 
+const stackholderList = [
+  { id: 1, name: "ประชาชนทั่วไป" },
+  { id: 2, name: "แม่ค้า" },
+  { id: 3, name: "ข้าราชการ" },
+  { id: 4, name: "ผู้ใช้รถใช้ถนน" },
+  { id: 5, name: "อื่นๆ" },
+];
+
 const onMapLoaded = async (map) => {
   mapInstance.value = map; // Store the MapLibre instance
-  console.log(mapInstance.value)
 };
 
-onMounted(() => { });
+onMounted(() => {});
 
 // ฟังก์ชันสำหรับดึงตำแหน่งปัจจุบัน
 const getCurrentLocation = () => {
@@ -196,30 +290,28 @@ const getCurrentLocation = () => {
     (position) => {
       // ดึงพิกัดปัจจุบัน
       const { latitude, longitude } = position.coords;
-      console.log(latitude, longitude);
 
       // เลื่อนแผนที่ไปยังตำแหน่งปัจจุบัน
-      console.log(mapInstance);
       if (mapInstance.value) {
         // ลบ marker เดิมถ้ามีอยู่
-        const markers = document.getElementsByClassName('maplibregl-marker');
-        while(markers[0]) {
+        const markers = document.getElementsByClassName("maplibregl-marker");
+        while (markers[0]) {
           markers[0].remove();
         }
 
         mapInstance.value.flyTo({
           center: [longitude, latitude],
-          zoom: 15
+          zoom: 15,
         });
 
         // สร้างจุดบนแผนที่
         const point = {
-          type: "Feature", 
+          type: "Feature",
           geometry: {
             type: "Point",
-            coordinates: [longitude, latitude]
+            coordinates: [longitude, latitude],
           },
-          properties: {}
+          properties: {},
         };
 
         // สร้าง marker แสดงตำแหน่งปัจจุบัน
@@ -254,7 +346,6 @@ const getCurrentLocation = () => {
   );
 };
 
-
 const handleSelectionChanged = (selectedDropdown) => {
   selectedCategory.value = selectedDropdown.selectedCategoryId;
   selectedSubcategory.value = selectedDropdown.selectedSubcategoryId;
@@ -269,7 +360,8 @@ const openConfirmModal = () => {
     !selectedCategory.value ||
     !selectedSubcategory.value ||
     !detailName.value.trim() ||
-    !selectedOwnership.value
+    !selectedOwnership.value ||
+    !selectedStakeholder.value
     // this.uploadedFiles.length > -1
   ) {
     toast.error("กรุณากรอกข้อมูลให้ครบทุกช่อง", { timeout: 3000 });
@@ -304,17 +396,18 @@ const confirmSubmit = async () => {
     creator_mail: user.email,
     detail: detailName.value,
     geom: geojsonToWKT(geom.value[0].geometry),
+    stakeholder_id: selectedStakeholder.value,
   };
 
   try {
     const { postUrbanIssue } = useUrbanIssues();
-    const result = await postUrbanIssue(payload);
+    await postUrbanIssue(payload);
     toast.success("ข้อมูลของคุณถูกบันทึกเรียบร้อยแล้ว!");
     resetForm();
     // Navigate to /items
-    router.push('/bangkok/items');
+    router.push("/bangkok/items");
   } catch (error) {
-    console.error('Error Details:', error);
+    console.error("Error Details:", error);
     toast.error("Failed to submit issue. Please try again.");
   }
 };
@@ -325,6 +418,7 @@ const resetForm = () => {
   selectedCategory.value = null;
   selectedSubcategory.value = null;
   selectedOwnership.value = null;
+  selectedStakeholder.value = null;
   detailName.value = "";
   geom.value = [];
   resetDropdown.value = true;
