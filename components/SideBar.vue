@@ -1,7 +1,7 @@
 <template>
   <div :class="[
     'drop-shadow-md bg-white flex flex-col z-30 sm:z-10',
-    'md:relative',
+    'md:relative', 
     isMobileOpen ? 'fixed inset-0 w-48' : 'hidden md:flex'
   ]">
     <div class="flex justify-end md:hidden p-4" v-if="isMobileOpen">
@@ -12,8 +12,9 @@
       </button>
     </div>
     <div class="flex flex-col md:flex-col">
+      <!-- แสดงเมนูหน้าหลักตลอด -->
       <div
-        v-for="menu in menus.filter((m) => m.show)"
+        v-for="menu in homeMenus"
         :key="menu.id"
         class="divide-y border-b-none md:border-b"
       >
@@ -37,61 +38,163 @@
           </div>
         </NuxtLink>
       </div>
+      <!-- แสดงเมนูตามเมือง -->
+      <div v-for="cityGroup in groupedCityMenus" :key="cityGroup.city">
+        <div class="bg-white text-orange-500 p-2 font-medium text-center border-b">
+          {{ cityGroup.cityName }}
+        </div>
+        <div
+          v-for="menu in cityGroup.menus"
+          :key="menu.id"
+          class="divide-y border-b-none md:border-b"
+        >
+          <NuxtLink :id="menu.id" :to="menu.path">
+            <div
+              :class="[
+                'flex flex-col items-center p-3 text-sm font-medium',
+                {
+                  'bg-primary text-white': $router.currentRoute.value.path === menu.path,
+                },
+                {
+                  'hover:text-black hover:bg-subprimary':
+                    $router.currentRoute.value.path !== menu.path,
+                },
+              ]"
+            >
+              <component :is="menu.icon" class="w-4 h-4" />
+              <div class="text-sm mt-1 text-nowrap">
+                {{ menu.name }}
+              </div>
+            </div>
+          </NuxtLink>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, markRaw, onMounted } from "vue";
+import { ref, computed, markRaw } from "vue";
+import { useRoute } from 'vue-router';
 
 import SvgMarker from "@/components/Svg/SvgMarker.vue";
 import SvgAddPin from "@/components/Svg/SvgAddPin.vue";
 import SvgDashboard from "@/components/Svg/SvgDashboard.vue";
 import SvgTable from "@/components/Svg/SvgTable.vue";
 import SvgMap from "@/components/Svg/SvgMap.vue";
+import SvgHome from "@/components/Svg/SvgHome.vue";
 
-const menus = ref([
+const route = useRoute();
+
+const allMenus = ref([
+  // Home Menus
   {
-    id: "location-sidebar",
-    name: "บันทึก",
-    role: "location",
+    id: "home",
+    name: "หน้าหลัก",
+    role: "home",
     path: "/",
-    icon: markRaw(SvgAddPin),
-    show: true,
+    icon: markRaw(SvgHome),
+    city: "home"
   },
   {
-    id: "items-sidebar",
-    name: "รายการ",
-    role: "items",
-    path: "/lamphun-items",
-    icon: markRaw(SvgTable),
-    show: true,
-  },
-  {
-    id: "map-sidebar",
-    name: "แผนที่",
-    role: "map",
-    path: "/lamphun-map",
-    icon: markRaw(SvgMap),
-    show: true,
-  },
-  {
-    id: "fondue-sidebar",
-    name: "Fondue",
-    role: "fondue",
-    path: "/fondue",
-    icon: markRaw(SvgMarker),
-    show: false,
-  },
-  {
-    id: "dashboard-sidebar",
-    name: "สถิติ",
-    role: "dashboard",
+    id: "dashboard",
+    name: "แดชบอร์ด",
+    role: "dashboard", 
     path: "/dashboard",
     icon: markRaw(SvgDashboard),
-    show: false,
+    city: "home"
+  },
+  // Bangkok Menus
+  {
+    id: "bangkok-location",
+    name: "บันทึก",
+    role: "location",
+    path: "/bangkok",
+    icon: markRaw(SvgAddPin),
+    city: "bangkok",
+    cityName: "กรุงเทพฯ"
+  },
+  {
+    id: "bangkok-items", 
+    name: "รายการ",
+    role: "items",
+    path: "/bangkok/items",
+    icon: markRaw(SvgTable),
+    city: "bangkok",
+    cityName: "กรุงเทพ"
+  },
+  {
+    id: "bangkok-map",
+    name: "แผนที่",
+    role: "map", 
+    path: "/bangkok/map",
+    icon: markRaw(SvgMap),
+    city: "bangkok",
+    cityName: "กรุงเทพฯ"
+  },
+  {
+    id: "bangkok-fondue",
+    name: "Fondue",
+    role: "fondue",
+    path: "/bangkok/fondue", 
+    icon: markRaw(SvgMarker),
+    city: "bangkok",
+    cityName: "กรุงเทพฯ"
+  },
+  // Lamphun Menus
+  {
+    id: "lamphun-location",
+    name: "บันทึก",
+    role: "location",
+    path: "/lamphun",
+    icon: markRaw(SvgAddPin),
+    city: "lamphun",
+    cityName: "ลำพูน"
+  },
+  {
+    id: "lamphun-items",
+    name: "รายการ",
+    role: "items",
+    path: "/lamphun/items",
+    icon: markRaw(SvgTable),
+    city: "lamphun",
+    cityName: "ลำพูน"
+  },
+  {
+    id: "lamphun-map",
+    name: "แผนที่",
+    role: "map",
+    path: "/lamphun/map",
+    icon: markRaw(SvgMap),
+    city: "lamphun",
+    cityName: "ลำพูน"
   },
 ]);
+
+// แยกเมนูหน้าหลักออกมา
+const homeMenus = computed(() => {
+  return allMenus.value.filter(menu => menu.city === 'home');
+});
+
+// จัดกลุ่มเมนูตามเมือง
+const groupedCityMenus = computed(() => {
+  const currentPath = route.path;
+  const pathSegments = currentPath.split('/');
+  const currentCity = pathSegments[1] || 'home';
+  
+  if (currentCity === 'home' || currentCity === 'dashboard') {
+    return [];
+  }
+
+  const cityMenus = allMenus.value.filter(menu => menu.city === currentCity);
+  if (cityMenus.length === 0) return [];
+
+  return [{
+    city: currentCity,
+    cityName: cityMenus[0].cityName,
+    menus: cityMenus
+  }];
+});
 
 defineProps({
   isMobileOpen: {
@@ -101,7 +204,4 @@ defineProps({
 });
 
 defineEmits(['close']);
-
-onMounted(async () => {
-});
 </script>

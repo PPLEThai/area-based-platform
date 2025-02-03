@@ -23,6 +23,15 @@ export const useUrbanIssues = () => {
         }
     };
 
+    const getStatsUrbanIssue = async (params = {}) => {
+        try {
+            const response = await $axios.get('/urbanissues/stats');
+            return response.data; // Return the response data
+        } catch (error) {
+            throw error.response ? error.response.data : new Error(error.message); // Throw for better error handling
+        }
+    };
+
     const deleteUrbanIssue = async (id, email) => {
         try {
             const response = await $axios.delete(`/urbanissues/${id}`, {
@@ -54,6 +63,7 @@ export const useUrbanIssues = () => {
         postUrbanIssue,
         getUrbanIssues,
         deleteUrbanIssue,
-        updateUrbanIssue
+        updateUrbanIssue,
+        getStatsUrbanIssue
     };
 };

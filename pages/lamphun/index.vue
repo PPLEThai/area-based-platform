@@ -129,7 +129,7 @@
         <p class="text-sm text-gray-600 mt-2">กำลังค้นหาตำแหน่งของคุณ...</p>
       </div>
 
-      <MapLibreTerraDraw :mapStyle="mapStyle" :center="[100.599186, 13.736717]" :zoom="10"
+      <MapLibreLamphun :mapStyle="mapStyle" :center="[98.952368, 17.991376]" :zoom="8.4"
         @features-updated="updateFeatures" @mapLoaded="onMapLoaded" />
     </div>
     <Modal :isOpen="isModalOpen" title="ยืนยันการส่งข้อมูล" message="คุณแน่ใจหรือไม่ว่าต้องการส่งข้อมูลนี้?"
@@ -145,7 +145,7 @@ import { useUrbanIssues } from "@/composables/useUrbanIssues";
 import { useToast } from "vue-toastification";
 import { geojsonToWKT } from "@terraformer/wkt";
 import Dropdowns from "@/components/Dropdowns.vue";
-import MapLibreTerraDraw from "@/components/MapLibreTerraDraw.vue";
+import MapLibreLamphun from "@/components/Lamphun/MapLibreLamphun.vue";
 import Modal from "@/components/Modal.vue";
 import maplibregl from "maplibre-gl";
 
@@ -164,6 +164,8 @@ const selectedSubcategory = ref(null);
 const selectedOwnership = ref(null);
 const geom = ref([]);
 const mapStyle = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"; // free
+// const mapStyle = ref("https://api.maptiler.com/maps/darkmatter/style.json?key=DMl4AxokgMPvgzLikrFx");
+// const mapStyle = ref("https://api.maptiler.com/maps/streets-v2/style.json?key=DMl4AxokgMPvgzLikrFx");
 const mapInstance = ref(null);
 const isGettingLocation = ref(false);
 
@@ -312,7 +314,7 @@ const confirmSubmit = async () => {
     toast.success("ข้อมูลของคุณถูกบันทึกเรียบร้อยแล้ว!");
     resetForm();
     // Navigate to /items
-    router.push('/items');
+    router.push('/lamphun/items');
   } catch (error) {
     console.error('Error Details:', error);
     toast.error("Failed to submit issue. Please try again.");

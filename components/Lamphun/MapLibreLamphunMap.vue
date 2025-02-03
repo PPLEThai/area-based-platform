@@ -64,13 +64,12 @@ import floodData from '@/assets/data/lamphun_flood.json';
 import hospitalData from '@/assets/data/lamphun_hospital.json';
 import bigHospitalData from '@/assets/data/lamphun_hospital_big.json';
 import { useLamphunBoundary, useLamphunDistrictBoundary } from "@/composables/useBoundary";
-import LayerSelection from './LayerSelection.vue';
 
 const props = defineProps({
   mapStyle: {
     type: String,
     required: true,
-    default: "https://api.maptiler.com/maps/darkmatter/style.json?key=DMl4AxokgMPvgzLikrFx",
+    default: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
   },
   center: {
     type: Array,

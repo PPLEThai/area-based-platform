@@ -148,7 +148,8 @@ import EditModal from "@/components/EditModal.vue";
 import { useToast } from "vue-toastification";
 import { useUrbanIssues } from "@/composables/useUrbanIssues";
 import * as Terraformer from "@terraformer/wkt";
-import MapLibreLamphunMap from '~/components/MapLibreLamphunMap.vue';
+import MapLibreLamphunMap from '@/components/Lamphun/MapLibreLamphunMap.vue';
+import MapLibreEditModal from '@/components/MapLibreEditModal.vue';
 
 const userStore = useUserStore();
 const user = userStore.$state;
