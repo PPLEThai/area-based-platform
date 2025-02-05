@@ -185,7 +185,7 @@
         </svg>
 
         <p class="ml-2 text-sm font-bold text-white">
-          {{ isGettingLocation ? "กำลังระบุตำแหน่ง..." : "ระบุตำแหน่งของท่าน" }}
+          {{ isGettingLocation ? "กำลังระบุตำแหน่ง..." : "ตำแหน่งของท่าน" }}
         </p>
       </button>
 
@@ -251,6 +251,7 @@ const geom = ref([]);
 const mapStyle = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"; // free
 const mapInstance = ref(null);
 const isGettingLocation = ref(false);
+const currentMarker = ref(null);
 
 const ownershipList = [
   { id: 1, name: "ท้องถิ่น" },
@@ -279,6 +280,18 @@ const onMapLoaded = async (map) => {
 
 onMounted(() => {});
 
+const updateGeomFromMarker = (lngLat) => {
+  const point = {
+    type: "Feature",
+    geometry: {
+      type: "Point",
+      coordinates: [lngLat.lng, lngLat.lat],
+    },
+    properties: {},
+  };
+  geom.value = [point];
+};
+
 // ฟังก์ชันสำหรับดึงตำแหน่งปัจจุบัน
 const getCurrentLocation = () => {
   const toast = useToast();
@@ -298,9 +311,8 @@ const getCurrentLocation = () => {
       // เลื่อนแผนที่ไปยังตำแหน่งปัจจุบัน
       if (mapInstance.value) {
         // ลบ marker เดิมถ้ามีอยู่
-        const markers = document.getElementsByClassName("maplibregl-marker");
-        while (markers[0]) {
-          markers[0].remove();
+        if (currentMarker.value) {
+          currentMarker.value.remove();
         }
 
         mapInstance.value.flyTo({
@@ -308,26 +320,24 @@ const getCurrentLocation = () => {
           zoom: 15,
         });
 
-        // สร้างจุดบนแผนที่
-        const point = {
-          type: "Feature",
-          geometry: {
-            type: "Point",
-            coordinates: [longitude, latitude],
-          },
-          properties: {},
-        };
-
-        // สร้าง marker แสดงตำแหน่งปัจจุบัน
-        new maplibregl.Marker()
+        // สร้าง marker แสดงตำแหน่งปัจจุบันที่สามารถลากได้
+        currentMarker.value = new maplibregl.Marker({
+          draggable: true,
+        })
           .setLngLat([longitude, latitude])
-          .setPopup(new maplibregl.Popup().setHTML("ตำแหน่งปัจจุบันของคุณ"))
+          .setPopup(new maplibregl.Popup().setHTML("คุณสามารถลากหมุดเพื่อปรับตำแหน่งได้"))
           .addTo(mapInstance.value);
 
-        // อัพเดทค่า geom
-        geom.value = [point];
+        // เพิ่ม event listener สำหรับการลากหมุด
+        currentMarker.value.on("dragend", () => {
+          const lngLat = currentMarker.value.getLngLat();
+          updateGeomFromMarker(lngLat);
+        });
 
-        toast.success("ระบุตำแหน่งปัจจุบันสำเร็จ");
+        // อัพเดทค่า geom เริ่มต้น
+        updateGeomFromMarker({ lng: longitude, lat: latitude });
+
+        toast.success("ระบุตำแหน่งปัจจุบันสำเร็จ สามารถลากหมุดเพื่อปรับตำแหน่งได้");
         isGettingLocation.value = false;
       }
     },
@@ -428,6 +438,10 @@ const resetForm = () => {
   detailName.value = "";
   geom.value = [];
   resetDropdown.value = true;
+  if (currentMarker.value) {
+    currentMarker.value.remove();
+    currentMarker.value = null;
+  }
   nextTick(() => {
     resetDropdown.value = false;
   });
