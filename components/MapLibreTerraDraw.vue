@@ -2,11 +2,20 @@
   <div class="relative w-full h-full">
     <!-- Search Box -->
     <div class="absolute top-4 left-4 z-10 w-64 sm:w-96">
-      <input type="text" v-model="searchQuery" @keydown.enter="performSearch"
-        placeholder="ค้นหาสถานที่ เช่น เพชรเกษม 48" class="w-full p-2 border rounded-lg shadow" />
+      <input
+        type="text"
+        v-model="searchQuery"
+        @keydown.enter="performSearch"
+        placeholder="ค้นหาสถานที่ เช่น เพชรเกษม 48"
+        class="w-full p-2 border rounded-lg shadow"
+      />
       <ul v-if="searchResults.length" class="bg-white border rounded-lg shadow mt-2">
-        <li v-for="result in searchResults" :key="result.id" @click="selectResult(result)"
-          class="p-2 hover:bg-gray-200 cursor-pointer">
+        <li
+          v-for="result in searchResults"
+          :key="result.id"
+          @click="selectResult(result)"
+          class="p-2 hover:bg-gray-200 cursor-pointer"
+        >
           {{ result.name }}
         </li>
       </ul>
@@ -82,9 +91,9 @@ const initializeMap = async () => {
       "point",
       "linestring",
       "polygon",
-      "rectangle",
-      "circle",
-      "freehand",
+      // "rectangle",
+      // "circle",
+      // "freehand",
       // "angled-rectangle",
       // "sensor",
       // "sector",
@@ -97,9 +106,9 @@ const initializeMap = async () => {
 
   map.value.addControl(draw.value, "top-right");
   map.value.on("load", function () {
-    drawBkkBoundary()
+    drawBkkBoundary();
     emit("mapLoaded", map.value); // ส่งอีเวนต์กลับไปยังผู้เรียก
-  })
+  });
 
   const drawInstance = draw.value.getTerraDrawInstance();
   if (drawInstance) {
@@ -126,7 +135,7 @@ const drawBkkBoundary = () => {
       "line-width": 2,
     },
   });
-}
+};
 
 const performSearch = async () => {
   if (!searchQuery.value.trim()) return;

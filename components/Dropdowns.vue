@@ -130,7 +130,7 @@ export default {
       );
       this.subcategoryList = selectedCategory ? selectedCategory.subcategories : [];
       this.selectedSubcategoryId = ""; // Reset Subcategory เมื่อเปลี่ยน Category
-      this.emitSelection();
+      // this.emitSelection();
     },
     emitSelection() {
       this.$emit("selection-changed", {

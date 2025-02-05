@@ -50,12 +50,16 @@ const props = defineProps({
     required: true,
     default: 10,
   },
+  initialGeom: {
+    type: [Object, String],
+    default: null,
+  },
 });
 
 // Import the custom composable
-import { useBkkBoundary } from "@/composables/useBoundary";
-const { getBkkBoundaryData } = useBkkBoundary(); // Extract the function
-const bkkBoundaryData = getBkkBoundaryData(); // Load the boundary data
+// import { useBkkBoundary } from "@/composables/useBoundary";
+// const { getBkkBoundaryData } = useBkkBoundary(); // Extract the function
+// const bkkBoundaryData = getBkkBoundaryData(); // Load the boundary data
 
 // Emits
 const emit = defineEmits(["features-updated"]);
@@ -63,8 +67,9 @@ const emit = defineEmits(["features-updated"]);
 // Reactive variables
 const mapContainer = ref(null); // Reference to the map container
 const map = ref(null);
-const draw = ref(null);
+const drawControl = ref(null);
 const features = ref([]);
+const marker = ref(null);
 
 // search display
 const searchQuery = ref("");
@@ -74,29 +79,23 @@ const currentMarker = ref(null);
 
 // Initialize Map
 const initializeMap = async () => {
-  await nextTick(); // รอให้ DOM ของ mapContainer เรนเดอร์เสร็จ
+  await nextTick();
 
-  if (!mapContainer.value) return; // Ensure the map container is available
+  if (!mapContainer.value) return;
 
   map.value = new maplibregl.Map({
-    container: mapContainer.value, // ใช้ DOM element ที่ mapContainer ชี้ไป
+    container: mapContainer.value,
     style: props.mapStyle,
     center: props.center,
     zoom: props.zoom,
   });
 
-  draw.value = new MaplibreTerradrawControl({
+  drawControl.value = new MaplibreTerradrawControl({
     modes: [
       "render",
       "point",
       "linestring",
       "polygon",
-      "rectangle",
-      "circle",
-      "freehand",
-      // "angled-rectangle",
-      // "sensor",
-      // "sector",
       "select",
       "delete-selection",
       "delete",
@@ -104,37 +103,148 @@ const initializeMap = async () => {
     open: true,
   });
 
-  map.value.addControl(draw.value, "top-right");
-  map.value.on('load', function () {
-    drawBkkBoundary()
-  })
+  map.value.addControl(drawControl.value, "top-right");
 
-  const drawInstance = draw.value.getTerraDrawInstance();
+  map.value.on("load", function () {
+    // drawBkkBoundary();
+
+    if (props.initialGeom) {
+      let geojsonFeature;
+
+      if (typeof props.initialGeom === "string") {
+        // Handle WKT string
+        try {
+          const wkt = props.initialGeom;
+          geojsonFeature = {
+            type: "Feature",
+            geometry: wktToGeoJSON(wkt),
+            properties: {},
+          };
+        } catch (error) {
+          console.error("Error converting WKT:", error);
+          return;
+        }
+      } else {
+        // Handle GeoJSON object
+        geojsonFeature = props.initialGeom;
+      }
+
+      if (geojsonFeature.geometry.type === "Point") {
+        // If it's a point, create a draggable marker
+        const coordinates = geojsonFeature.geometry.coordinates;
+        marker.value = new maplibregl.Marker({
+          draggable: true,
+        })
+          .setLngLat(coordinates)
+          .addTo(map.value);
+
+        // Update features when marker is dragged
+        marker.value.on("dragend", () => {
+          const lngLat = marker.value.getLngLat();
+          const pointFeature = {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [lngLat.lng, lngLat.lat],
+            },
+            properties: {},
+          };
+          features.value = [pointFeature];
+          emit("features-updated", features.value);
+        });
+      } else if (geojsonFeature.geometry.type === "LineString") {
+        // Add source and layer for LineString
+        const drawInstance = drawControl.value.getTerraDrawInstance();
+        drawInstance?.addFeatures([
+          {
+            ...geojsonFeature,
+            properties: {
+              mode: "linestring",
+              selected: true,
+            },
+          },
+        ]);
+
+        features.value = [geojsonFeature];
+        emit("features-updated", features.value);
+      } else if (geojsonFeature.geometry.type === "Polygon") {
+        const drawInstance = drawControl.value.getTerraDrawInstance();
+        drawInstance?.addFeatures([
+          {
+            ...geojsonFeature,
+            properties: {
+              mode: "polygon",
+              selected: true,
+            },
+          },
+        ]);
+        features.value = [geojsonFeature];
+        emit("features-updated", features.value);
+      }
+
+      const bounds = getBounds(geojsonFeature.geometry);
+      if (bounds) {
+        map.value.fitBounds(bounds, { padding: 50 });
+      }
+    }
+  });
+
+  const drawInstance = drawControl.value.getTerraDrawInstance();
   if (drawInstance) {
     drawInstance.on("change", () => {
       const snapshot = drawInstance.getSnapshot();
       features.value = snapshot;
-      emit("features-updated", features.value); // Emit the updated features
+      emit("features-updated", features.value);
     });
   }
 };
 
-const drawBkkBoundary = () => {
-  map.value.addSource("bkk-boundary", {
-    type: "geojson",
-    data: bkkBoundaryData,
-  });
+// const drawBkkBoundary = () => {
+//   map.value.addSource("bkk-boundary", {
+//     type: "geojson",
+//     data: bkkBoundaryData,
+//   });
 
-  map.value.addLayer({
-    id: "bkk-boundary-layer",
-    type: "line",
-    source: "bkk-boundary",
-    paint: {
-      "line-color": "#ff6a13",
-      "line-width": 2,
+//   map.value.addLayer({
+//     id: "bkk-boundary-layer",
+//     type: "line",
+//     source: "bkk-boundary",
+//     paint: {
+//       "line-color": "#ff6a13",
+//       "line-width": 2,
+//     },
+//   });
+// };
+
+const getBounds = (geometry) => {
+  if (!geometry) return null;
+
+  let coordinates = [];
+  if (geometry.type === "Point") {
+    coordinates = [geometry.coordinates];
+  } else if (geometry.type === "LineString") {
+    coordinates = geometry.coordinates;
+  } else if (geometry.type === "Polygon") {
+    coordinates = geometry.coordinates[0];
+  }
+
+  if (coordinates.length === 0) return null;
+
+  const bounds = coordinates.reduce(
+    (bounds, coord) => {
+      return [
+        [Math.min(bounds[0][0], coord[0]), Math.min(bounds[0][1], coord[1])],
+        [Math.max(bounds[1][0], coord[0]), Math.max(bounds[1][1], coord[1])],
+      ];
     },
-  });
-}
+    [
+      [coordinates[0][0], coordinates[0][1]],
+      [coordinates[0][0], coordinates[0][1]],
+    ]
+  );
+
+  return bounds;
+};
 
 const performSearch = async () => {
   if (!searchQuery.value.trim()) return;
