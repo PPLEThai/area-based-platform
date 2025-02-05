@@ -162,6 +162,60 @@
     "color": "#8c564b"
   },
   {
+    "id": 8,
+    "name": "ที่อยู่อาศัย",
+    "subcategories": [
+      {
+        "id": 801,
+        "name": "ชุมชนแออัด (ไม่มั่นคง)",
+        "image": "community_overcrowded.png"
+      },
+      {
+        "id": 802,
+        "name": "คนไร้บ้าน",
+        "image": "homeless_person.png"
+      },
+      {
+        "id": 803,
+        "name": "บ้านเช่าราคาเหมาะสม",
+        "image": "affordable_rental_house.png"
+      }
+    ],
+    "color": "#ffc107"
+  },
+  {
+    "id": 9,
+    "name": "พื้นที่เสี่ยงภัยและไม่ปลอดภัย",
+    "subcategories": [
+      {
+        "id": 901,
+        "name": "ยาเสพติด",
+        "image": "drug_abuse.png"
+      },
+      {
+        "id": 902,
+        "name": "อาชญากรรม",
+        "image": "crime.png"
+      },
+      {
+        "id": 903,
+        "name": "อุบัติเหตุ",
+        "image": "accident.png"
+      },
+      {
+        "id": 904,
+        "name": "น้ำท่วม",
+        "image": "flood.png"
+      },
+      {
+        "id": 905,
+        "name": "การพนัน",
+        "image": "gambling.png"
+      }
+    ],
+    "color": "#0057a0"
+  },
+  {
     "id": 7,
     "name": "อื่นๆ",
     "subcategories": [
@@ -184,3 +238,5 @@
     "color": "#e377c2"
   }
 ]
+
+
