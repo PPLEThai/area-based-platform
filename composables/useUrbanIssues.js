@@ -3,12 +3,17 @@ export const useUrbanIssues = () => {
         $axios
     } = useNuxtApp(); // Access the Axios instance provided by the plugin
 
-    const postUrbanIssue = async (payload) => {
+    const postUrbanIssue = async (formData) => {
         try {
-            const response = await $axios.post('/urbanissues', payload);
-            return response.data; // Return the response data
+            const response = await $axios.post('/urbanissues', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            return response.data;
         } catch (error) {
-            throw error.response ? error.response.data : new Error(error.message); // Throw for better error handling
+            console.error('Error posting urban issue:', error);
+            throw error;
         }
     };
 

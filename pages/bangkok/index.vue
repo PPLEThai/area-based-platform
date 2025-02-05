@@ -1,9 +1,11 @@
 <template>
   <div class="flex flex-col-reverse h-fit md:flex-row md:h-full">
     <!-- ส่วนของการบันทึกข้อมูล -->
-    <div class="w-5/5 md:w-2/5 p-4 shadow-lg h-auto md:h-full">
+    <div class="w-5/5 md:w-2/5 p-4 shadow-lg h-auto md:h-full overflow-y-auto">
       <div class="py-2">
-        <div class="text-primary font-bold">บันทึกข้อมูลแนวทางการแก้ปัญหา</div>
+        <div class="text-primary font-bold">
+          บันทึกข้อมูลปัญหาพื้นที่หรือแนวทางการแก้ไข
+        </div>
         <div class="text-gray-500 font-light text-sm">
           สามารถลากเลื่อนแผนที่ไปยังพิกัดที่ต้องการได้
         </div>
@@ -12,6 +14,7 @@
 
       <form @submit.prevent="openConfirmModal">
         <div class="grid gap-6 mb-6 grid-cols-1 md:grid-cols-1">
+          <!-- หัวข้อ -->
           <div>
             <label
               for="title-name"
@@ -31,6 +34,7 @@
             </p>
           </div>
 
+          <!-- หมวดหมู่และหมวดหมู่ย่อย -->
           <div>
             <Dropdowns
               :resetTrigger="resetDropdown"
@@ -109,7 +113,7 @@
         </div>
 
         <!-- Upload image -->
-        <!-- <div class="grid gap-2 mb-2 md:grid-cols-1">
+        <div class="grid gap-2 mb-2 md:grid-cols-1">
           <label
             class="block text-sm font-medium text-gray-900 dark:text-white"
             for="multiple_files"
@@ -126,15 +130,9 @@
           <p class="text-sm text-gray-500 dark:text-gray-300" id="file_input_help">
             PNG, JPG (ขนาดไม่เกิน 800x400px และ 5MB).
           </p>
-          <p
-            v-if="isSubmitted && uploadedFiles.length === 0"
-            class="text-red-500 text-sm"
-          >
-            กรุณาอัปโหลดรูปภาพอย่างน้อย 1 รูป
-          </p> -->
 
-        <!-- แสดงตัวอย่างรูปภาพ -->
-        <!-- <div v-if="filePreviews.length" class="mt-4 grid grid-cols-3 gap-2">
+          <!-- แสดงตัวอย่างรูปภาพ -->
+          <div v-if="filePreviews.length" class="my-4 grid grid-cols-3 gap-2">
             <div v-for="(preview, index) in filePreviews" :key="index" class="relative">
               <img :src="preview" alt="Preview" class="w-full h-auto rounded-lg" />
               <button
@@ -146,7 +144,7 @@
               </button>
             </div>
           </div>
-        </div> -->
+        </div>
 
         <button
           type="submit"
@@ -238,7 +236,7 @@ import maplibregl from "maplibre-gl";
 const userStore = useUserStore();
 const user = userStore.$state;
 
-const uploadedFiles = ref([]);
+const uploadedFiles = ref([]); // Initialize as empty array
 const filePreviews = ref([]);
 const resetDropdown = ref(false);
 const isModalOpen = ref(false);
@@ -266,7 +264,13 @@ const stackholderList = [
   { id: 2, name: "แม่ค้า" },
   { id: 3, name: "ข้าราชการ" },
   { id: 4, name: "ผู้ใช้รถใช้ถนน" },
-  { id: 5, name: "อื่นๆ" },
+  { id: 5, name: "บริษัทพัฒนาเมือง" },
+  { id: 6, name: "startup" },
+  { id: 7, name: "ผู้ประกอบการทางสังคม" },
+  { id: 8, name: "กลุ่มประชาสังคม" },
+  { id: 9, name: "NGOs มูลนิธิ" },
+  { id: 10, name: "ผู้ประกอบการเอกชนที่เกี่ยวข้อง" },
+  { id: 11, name: "อื่นๆ" },
 ];
 
 const onMapLoaded = async (map) => {
@@ -354,7 +358,6 @@ const handleSelectionChanged = (selectedDropdown) => {
 const openConfirmModal = () => {
   isSubmitted.value = true;
   const toast = useToast();
-
   if (
     !titleName.value.trim() ||
     !selectedCategory.value ||
@@ -362,7 +365,6 @@ const openConfirmModal = () => {
     !detailName.value.trim() ||
     !selectedOwnership.value ||
     !selectedStakeholder.value
-    // this.uploadedFiles.length > -1
   ) {
     toast.error("กรุณากรอกข้อมูลให้ครบทุกช่อง", { timeout: 3000 });
     return;
@@ -373,7 +375,7 @@ const openConfirmModal = () => {
     return;
   }
 
-  // if (uploadedFiles.length === 0) {
+  // if (uploadedFiles.value.length === 0) {
   //   toast.error("กรุณาอัปโหลดรูปภาพอย่างน้อย 1 รูป");
   //   return;
   // }
@@ -389,26 +391,30 @@ const confirmSubmit = async () => {
   const router = useRouter();
   isModalOpen.value = false;
   const toast = useToast();
-  const payload = {
-    name: titleName.value,
-    subcategory_id: selectedSubcategory.value,
-    ownership_id: selectedOwnership.value,
-    creator_mail: user.email,
-    detail: detailName.value,
-    geom: geojsonToWKT(geom.value[0].geometry),
-    stakeholder_id: selectedStakeholder.value,
-  };
+
+  const formData = new FormData();
+  formData.append("name", titleName.value);
+  formData.append("subcategory_id", selectedSubcategory.value);
+  formData.append("ownership_id", selectedOwnership.value);
+  formData.append("creator_mail", user.email);
+  formData.append("detail", detailName.value);
+  formData.append("geom", geojsonToWKT(geom.value[0].geometry));
+  formData.append("stakeholder_id", selectedStakeholder.value);
+
+  // เพิ่มรูปภาพแต่ละไฟล์เข้าไปใน FormData
+  uploadedFiles.value.forEach((file, index) => {
+    formData.append(`images`, file); // ใช้ชื่อฟิลด์เดียวกันสำหรับทุกไฟล์
+  });
 
   try {
     const { postUrbanIssue } = useUrbanIssues();
-    await postUrbanIssue(payload);
+    await postUrbanIssue(formData);
     toast.success("ข้อมูลของคุณถูกบันทึกเรียบร้อยแล้ว!");
     resetForm();
-    // Navigate to /items
     router.push("/bangkok/items");
   } catch (error) {
     console.error("Error Details:", error);
-    toast.error("Failed to submit issue. Please try again.");
+    toast.error("เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง");
   }
 };
 
@@ -435,7 +441,7 @@ const handleFileUpload = (event) => {
   const files = event.target.files;
 
   // จำกัดจำนวนไฟล์ที่อัปโหลดได้ (สูงสุด 5 ไฟล์)
-  if (files.length + uploadedFiles.length > 5) {
+  if (files.length + uploadedFiles.value.length > 5) {
     const toast = useToast();
     toast.error("คุณสามารถอัปโหลดได้สูงสุด 5 รูปภาพเท่านั้น");
     return;
@@ -450,19 +456,19 @@ const handleFileUpload = (event) => {
     }
 
     // เพิ่มไฟล์ลงใน uploadedFiles
-    uploadedFiles.push(file);
+    uploadedFiles.value.push(file);
 
     // สร้าง URL สำหรับแสดงตัวอย่างรูป
     const reader = new FileReader();
     reader.onload = (e) => {
-      filePreviews.push(e.target.result);
+      filePreviews.value.push(e.target.result);
     };
     reader.readAsDataURL(file);
   }
 };
 
 const removeFile = (index) => {
-  uploadedFiles.splice(index, 1); // ลบไฟล์ออกจากอาร์เรย์
-  filePreviews.splice(index, 1); // ลบรูปตัวอย่างออก
+  uploadedFiles.value.splice(index, 1); // ลบไฟล์ออกจากอาร์เรย์
+  filePreviews.value.splice(index, 1); // ลบรูปตัวอย่างออก
 };
 </script>
