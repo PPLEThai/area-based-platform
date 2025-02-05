@@ -22,33 +22,39 @@
       <p v-if="errorMessage" class="mt-2 text-red-500">{{ errorMessage }}</p>
     </div>
 
-    <!-- Legend -->
-    <div class="legend bg-white p-4 rounded shadow-lg absolute bottom-4 left-4 z-10 w-48">
-      <h3 class="font-bold mb-2">Legend</h3>
-      <div class="flex items-center mb-2">
-        <span class="inline-block w-4 h-4 mr-2 bg-red-500"></span>
-        <p>หมู่บ้าน</p>
-      </div>
-      <div class="flex items-center mb-2">
-        <span class="inline-block w-4 h-4 mr-2 bg-blue-500 opacity-50"></span>
-        <p>น้ำท่วม</p>
-      </div>
-      <div class="flex items-center mb-2">
-        <span class="inline-block w-4 h-4 mr-2 bg-green-500"></span>
-        <p>รพ.สต.</p>
-      </div>
-      <div class="flex items-center mb-2">
-        <span class="inline-block w-4 h-4 mr-2 bg-blue-500"></span>
-        <p>โรงพยาบาลศูนย์</p>
-      </div>
-    </div>
-
-    <!-- Layer Selection -->
+    <!-- Layer Selection & Legend -->
     <div class="absolute top-4 right-4 z-10 bg-white p-4 rounded shadow-lg">
-      <h3 class="font-bold mb-2">Filter Layers</h3>
+      <h3 class="font-bold mb-4">Filter Layers</h3>
       <div v-for="(visible, layer) in layers" :key="layer" class="flex items-center mb-2">
         <input type="checkbox" v-model="layers[layer]" :id="layer" class="mr-2" />
-        <label :for="layer">{{ layerLabels[layer] }}</label>
+        <label :for="layer" class="flex items-center">
+          <!-- <span
+            v-if="layer === 'subdistrictBoundary'"
+            class="inline-block w-4 h-4 mr-2 bg-purple-500"
+          ></span> -->
+          <span
+            v-if="layer === 'villagePoints'"
+            class="inline-block w-4 h-4 mr-2 rounded-full bg-red-500"
+          ></span>
+          <span
+            v-if="layer === 'hospitalPoints'"
+            class="inline-block w-4 h-4 mr-2 rounded-full bg-green-500"
+          ></span>
+          <span
+            v-if="layer === 'bigHospitalPoints'"
+            class="inline-block w-4 h-4 mr-2 rounded-full bg-blue-500"
+          ></span>
+          <img
+            v-if="layer === 'schoolPoints'"
+            src="/images/icons/school.png"
+            class="w-4 h-4 mr-2"
+          />
+          <span
+            v-if="layer === 'floodArea'"
+            class="inline-block w-4 h-4 mr-2 bg-[#7db0fb] opacity-50"
+          ></span>
+          {{ layerLabels[layer] }}
+        </label>
       </div>
     </div>
 
@@ -65,6 +71,8 @@ import villageData from "@/assets/data/lamphun_village.json";
 import floodData from "@/assets/data/lamphun_flood.json";
 import hospitalData from "@/assets/data/lamphun_hospital.json";
 import bigHospitalData from "@/assets/data/lamphun_hospital_big.json";
+import schoolData from "@/assets/data/lamphun_school.json";
+import subdistrictData from "@/assets/data/lamphun_subdistrict.json";
 import {
   useLamphunBoundary,
   useLamphunDistrictBoundary,
@@ -99,22 +107,27 @@ const mapContainer = ref(null);
 const searchQuery = ref("");
 const searchResults = ref([]);
 const errorMessage = ref("");
+const schoolImage = ref("/images/icons/school.png");
 
 // Layer visibility state
 const layers = ref({
+  subdistrictBoundary: false,
   districtBoundary: true,
   floodArea: true,
   villagePoints: true,
   hospitalPoints: true,
   bigHospitalPoints: true,
+  schoolPoints: true,
 });
 
 const layerLabels = {
-  districtBoundary: "อำเภอ",
+  subdistrictBoundary: "ขอบเขตตำบล",
+  districtBoundary: "ขอบเขตอำเภอ",
   floodArea: "น้ำท่วมซ้ำซาก",
   villagePoints: "หมู่บ้าน",
   hospitalPoints: "รพ.สต.",
   bigHospitalPoints: "โรงพยาบาลศูนย์",
+  schoolPoints: "โรงเรียน",
 };
 
 // Watch for layer visibility changes
@@ -151,11 +164,30 @@ watch(
       newLayers.hospitalPoints ? "visible" : "none"
     );
 
-    // Toggle big hospital points layer
+    // Toggle big hospital points layer and radius
     map.value.setLayoutProperty(
       "big-hospital-layer",
       "visibility",
       newLayers.bigHospitalPoints ? "visible" : "none"
+    );
+    map.value.setLayoutProperty(
+      "big-hospital-radius",
+      "visibility",
+      newLayers.bigHospitalPoints ? "visible" : "none"
+    );
+
+    // Toggle school points layer
+    map.value.setLayoutProperty(
+      "school-layer",
+      "visibility",
+      newLayers.schoolPoints ? "visible" : "none"
+    );
+
+    // Toggle subdistrict boundary layer
+    map.value.setLayoutProperty(
+      "subdistrict-layer",
+      "visibility",
+      newLayers.subdistrictBoundary ? "visible" : "none"
     );
   },
   { deep: true }
@@ -214,6 +246,18 @@ const initializeMap = async () => {
     style: props.mapStyle,
     center: props.center,
     zoom: props.zoom,
+  });
+
+  map.value.on("styleimagemissing", (e) => {
+    if (e.id === "school-icon" && !map.value.hasImage("school-icon")) {
+      const img = new Image();
+      img.src = schoolImage.value;
+      img.onload = () => {
+        if (!map.value.hasImage("school-icon")) {
+          map.value.addImage("school-icon", img);
+        }
+      };
+    }
   });
 
   map.value.on("load", () => {
@@ -311,6 +355,43 @@ const initializeMap = async () => {
     });
 
     map.value.on("mouseleave", "village-layer", () => {
+      map.value.getCanvas().style.cursor = "";
+    });
+
+    // Add school points layer
+    map.value.addSource("school-points", {
+      type: "geojson",
+      data: schoolData,
+    });
+
+    map.value.addLayer({
+      id: "school-layer",
+      type: "symbol",
+      source: "school-points",
+      layout: {
+        "icon-image": "school-icon",
+        "icon-size": 0.12,
+        "icon-allow-overlap": true,
+      },
+    });
+
+    // Add popup for school points
+    map.value.on("click", "school-layer", (e) => {
+      const coordinates = e.features[0].geometry.coordinates.slice();
+      const schoolName = e.features[0].properties.CUL_PNAME;
+
+      new maplibregl.Popup()
+        .setLngLat(coordinates)
+        .setHTML(`<h3>${schoolName}</h3>`)
+        .addTo(map.value);
+    });
+
+    // Change cursor on hover for school points
+    map.value.on("mouseenter", "school-layer", () => {
+      map.value.getCanvas().style.cursor = "pointer";
+    });
+
+    map.value.on("mouseleave", "school-layer", () => {
       map.value.getCanvas().style.cursor = "";
     });
 
@@ -413,6 +494,25 @@ const initializeMap = async () => {
     map.value.on("mouseleave", "big-hospital-layer", () => {
       map.value.getCanvas().style.cursor = "";
     });
+
+    // Add subdistrict boundary layer
+    map.value.addSource("subdistrict-boundary", {
+      type: "geojson",
+      data: subdistrictData,
+    });
+
+    map.value.addLayer({
+      id: "subdistrict-layer",
+      type: "line",
+      source: "subdistrict-boundary",
+      paint: {
+        "line-color": "#800080", // สีม่วงสำหรับขอบเขตตำบล
+        "line-width": 1,
+      },
+      layout: {
+        visibility: "none",
+      },
+    });
   });
 };
 
@@ -422,22 +522,10 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Add any additional styles here */
+/* Add any additional styles */
 .layer-selection {
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.legend {
-  min-width: 150px;
-}
-
-.legend span {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  margin-right: 8px;
-  border-radius: 50%;
 }
 </style>

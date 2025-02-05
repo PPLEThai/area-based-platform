@@ -7,7 +7,6 @@ export default defineNuxtConfig({
     "@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css",
     "vue-toastification/dist/index.css",
   ],
-
   postcss: {
     plugins: {
       tailwindcss: {},
@@ -20,7 +19,7 @@ export default defineNuxtConfig({
   build: { transpile: ['vue-toastification'] },
   runtimeConfig: {
     public: {
-      systemName: process.env.SYSTEM_NAME || 'องค์การบริหารส่วนจังหวัดลำพูน',
+      systemName: process.env.SYSTEM_NAME || 'กระบวนการเดินเมือง',
       apiBaseUrl: process.env.API_BASE_URL || 'http://localhost:3123',
     },
   },
