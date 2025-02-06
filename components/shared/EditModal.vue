@@ -96,11 +96,11 @@
 
 <script setup>
 import { ref, computed } from "vue";
-import MapLibreEditModal from "./MapLibreEditModal.vue";
+import MapLibreEditModal from "../maps/MapLibreEditModal.vue";
 import { useToast } from "vue-toastification";
 import { useUrbanIssues } from "@/composables/useUrbanIssues";
 import * as Terraformer from "@terraformer/wkt";
-import Dropdowns from "./Dropdowns.vue";
+import Dropdowns from "@/components/shared/Dropdowns.vue";
 
 const props = defineProps({
   isOpen: Boolean,

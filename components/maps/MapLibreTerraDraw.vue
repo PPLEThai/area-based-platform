@@ -33,6 +33,7 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css";
 import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
+import { useThailandBoundary } from "@/composables/useBoundary";
 
 // Props
 const props = defineProps({
@@ -50,12 +51,15 @@ const props = defineProps({
     required: true,
     default: 10,
   },
+  province: {
+    type: String,
+    required: true,
+  },
+  provinceId: {
+    type: String,
+    required: true,
+  },
 });
-
-// Import the custom composable
-import { useBkkBoundary } from "@/composables/useBoundary";
-const { getBkkBoundaryData } = useBkkBoundary(); // Extract the function
-const bkkBoundaryData = getBkkBoundaryData(); // Load the boundary data
 
 // Emits
 const emit = defineEmits(["features-updated", "mapLoaded"]);
@@ -106,7 +110,7 @@ const initializeMap = async () => {
 
   map.value.addControl(draw.value, "top-right");
   map.value.on("load", function () {
-    drawBkkBoundary();
+    drawProvinceBoundary();
     emit("mapLoaded", map.value); // ส่งอีเวนต์กลับไปยังผู้เรียก
   });
 
@@ -120,16 +124,27 @@ const initializeMap = async () => {
   }
 };
 
-const drawBkkBoundary = () => {
-  map.value.addSource("bkk-boundary", {
+const drawProvinceBoundary = () => {
+  const { getThailandBoundaryData } = useThailandBoundary();
+  const thBoundary = getThailandBoundaryData();
+
+  const provinceFeature = {
+    type: "FeatureCollection",
+    features: thBoundary.features.filter((feature) => {
+      const thProvinceId = feature.properties.id.replace("TH", "");
+      return thProvinceId === props.provinceId;
+    }),
+  };
+
+  map.value.addSource("province-boundary", {
     type: "geojson",
-    data: bkkBoundaryData,
+    data: provinceFeature,
   });
 
   map.value.addLayer({
-    id: "bkk-boundary-layer",
+    id: "province-boundary-layer",
     type: "line",
-    source: "bkk-boundary",
+    source: "province-boundary",
     paint: {
       "line-color": "#ff6a13",
       "line-width": 2,
