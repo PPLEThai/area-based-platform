@@ -34,8 +34,8 @@
 import { ref, onMounted, nextTick, watch } from "vue";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import communityData from '@/assets/data/community.json';
-import LayerSelection from './LayerSelection.vue';
+import communityData from "@/assets/data/community.json";
+import LayerSelection from "./LayerSelection.vue";
 
 const props = defineProps({
   mapStyle: {
@@ -84,18 +84,14 @@ watch(
     // Toggle district boundary layer
     const districtOpacity = newLayers.districtBoundary ? 0.4 : 0;
     map.value.setPaintProperty(
-      'district-boundary-layer',
-      'line-opacity',
+      "district-boundary-layer",
+      "line-opacity",
       districtOpacity
     );
 
     // Toggle BKK boundary layer
     const bkkOpacity = newLayers.bkkBoundary ? 1 : 0;
-    map.value.setPaintProperty(
-      'bkk-boundary-layer',
-      'line-opacity',
-      bkkOpacity
-    );
+    map.value.setPaintProperty("bkk-boundary-layer", "line-opacity", bkkOpacity);
   },
   { deep: true }
 );
@@ -148,100 +144,102 @@ const handleLayerUpdate = ({ community, districtBoundary, bkkBoundary }) => {
   // จัดการ community layer
   if (community) {
     // ถ้ายังไม่มี source ให้เพิ่มใหม่
-    if (!map.value.getSource('community-points')) {
-      map.value.addSource('community-points', {
-        type: 'geojson',
+    if (!map.value.getSource("community-points")) {
+      map.value.addSource("community-points", {
+        type: "geojson",
         data: {
-          type: 'FeatureCollection',
-          features: community.data.map(item => ({
-            type: 'Feature',
+          type: "FeatureCollection",
+          features: community.data.map((item) => ({
+            type: "Feature",
             geometry: {
-              type: 'Point',
-              coordinates: [item.longitude, item.latitude]
+              type: "Point",
+              coordinates: [item.longitude, item.latitude],
             },
             properties: {
               name: item.name,
-              type_id: item.type_id
-            }
-          }))
-        }
+              type_id: item.type_id,
+            },
+          })),
+        },
       });
 
       // เพิ่ม layer ถ้ายังไม่มี
-      if (!map.value.getLayer('community-layer')) {
+      if (!map.value.getLayer("community-layer")) {
         map.value.addLayer({
-          id: 'community-layer',
-          type: 'circle',
-          source: 'community-points',
+          id: "community-layer",
+          type: "circle",
+          source: "community-points",
           paint: {
-            'circle-radius': 6,
-            'circle-color': [
-              'match',
-              ['get', 'type_id'],
-              1, '#FF0000',  // ประเภท 1 - สีแดง
-              2, '#00FF00',  // ประเภท 2 - สีเขียว
-              3, '#0000FF',  // ประเภท 3 - สีน้ำเงิน
-              4, '#FFFF00',  // ประเภท 4 - สีเหลือง
-              5, '#FF00FF',  // ประเภท 5 - สีม่วง
-              6, '#00FFFF',  // ประเภท 6 - สีฟ้า
-              '#888888'      // ค่าอื่นๆ - สีเทา
+            "circle-radius": 6,
+            "circle-color": [
+              "match",
+              ["get", "type_id"],
+              1,
+              "#FF0000", // ประเภท 1 - สีแดง
+              2,
+              "#00FF00", // ประเภท 2 - สีเขียว
+              3,
+              "#0000FF", // ประเภท 3 - สีน้ำเงิน
+              4,
+              "#FFFF00", // ประเภท 4 - สีเหลือง
+              5,
+              "#FF00FF", // ประเภท 5 - สีม่วง
+              6,
+              "#00FFFF", // ประเภท 6 - สีฟ้า
+              "#888888", // ค่าอื่นๆ - สีเทา
             ],
-            'circle-opacity': 0.8,
-            'circle-stroke-width': 1,
-            'circle-stroke-color': '#ffffff'
+            "circle-opacity": 0.8,
+            "circle-stroke-width": 1,
+            "circle-stroke-color": "#ffffff",
           },
           layout: {
-            'visibility': 'none' // Set initial visibility to none
-          }
+            visibility: "none", // Set initial visibility to none
+          },
         });
 
         // เพิ่ม popup และ events
-        map.value.on('click', 'community-layer', (e) => {
+        map.value.on("click", "community-layer", (e) => {
           const coordinates = e.features[0].geometry.coordinates.slice();
           const name = e.features[0].properties.name;
-          
+
           new maplibregl.Popup()
             .setLngLat(coordinates)
             .setHTML(`<h3>${name}</h3>`)
             .addTo(map.value);
         });
 
-        map.value.on('mouseenter', 'community-layer', () => {
-          map.value.getCanvas().style.cursor = 'pointer';
+        map.value.on("mouseenter", "community-layer", () => {
+          map.value.getCanvas().style.cursor = "pointer";
         });
-        
-        map.value.on('mouseleave', 'community-layer', () => {
-          map.value.getCanvas().style.cursor = '';
+
+        map.value.on("mouseleave", "community-layer", () => {
+          map.value.getCanvas().style.cursor = "";
         });
       }
     }
 
     // ปรับการแสดงผล layer
     map.value.setLayoutProperty(
-      'community-layer',
-      'visibility',
-      community.visible ? 'visible' : 'none'
+      "community-layer",
+      "visibility",
+      community.visible ? "visible" : "none"
     );
   }
 
   // จัดการ district boundary layer
-  if (map.value.getLayer('district-boundary-layer')) {
+  if (map.value.getLayer("district-boundary-layer")) {
     const districtOpacity = districtBoundary ? 0.4 : 0;
     map.value.setPaintProperty(
-      'district-boundary-layer',
-      'line-opacity',
+      "district-boundary-layer",
+      "line-opacity",
       districtOpacity
     );
   }
 
   // จัดการ BKK boundary layer
-  if (map.value.getLayer('bkk-boundary-layer')) {
+  if (map.value.getLayer("bkk-boundary-layer")) {
     const bkkOpacity = bkkBoundary ? 1 : 0;
-    map.value.setPaintProperty(
-      'bkk-boundary-layer',
-      'line-opacity',
-      bkkOpacity
-    );
+    map.value.setPaintProperty("bkk-boundary-layer", "line-opacity", bkkOpacity);
   }
 };
 
@@ -293,56 +291,62 @@ const initializeMap = async () => {
     });
 
     // เพิ่ม GeoJSON source สำหรับชุมชน
-    map.value.addSource('community-points', {
-      type: 'geojson',
+    map.value.addSource("community-points", {
+      type: "geojson",
       data: {
-        type: 'FeatureCollection',
-        features: communityData.map(community => ({
-          type: 'Feature',
+        type: "FeatureCollection",
+        features: communityData.map((community) => ({
+          type: "Feature",
           geometry: {
-            type: 'Point',
-            coordinates: [community.longitude, community.latitude]
+            type: "Point",
+            coordinates: [community.longitude, community.latitude],
           },
           properties: {
             name: community.name,
-            type_id: community.type_id
-          }
-        }))
-      }
+            type_id: community.type_id,
+          },
+        })),
+      },
     });
 
     // เพิ่ม layer แสดงจุดชุมชน
     map.value.addLayer({
-      id: 'community-layer',
-      type: 'circle',
-      source: 'community-points',
+      id: "community-layer",
+      type: "circle",
+      source: "community-points",
       paint: {
-        'circle-radius': 4,
-        'circle-color': [
-          'match',
-          ['get', 'type_id'],
-          1, '#FF0000',  // ประเภท 1 - สีแดง - ชุมชนแออัด
-          2, '#00FF00',  // ประเภท 2 - สีเขียว - ชุมชนชานเมือง
-          3, '#0000FF',  // ประเภท 3 - สีน้ำเงิน - ชุมชนหมู่บ้านจัดสรร
-          4, '#FFFF00',  // ประเภท 4 - สีเหลือง - เคหะชุมชน
-          5, '#FF00FF',  // ประเภท 5 - สีม่วง - ชุมชนเมือง
-          6, '#00FFFF',  // ประเภท 6 - สีฟ้า - ชุมชนอาคารสูง
-          '#888888'      // ค่าอื่นๆ - สีเทา - ไม่ทราบข้อมูล
+        "circle-radius": 4,
+        "circle-color": [
+          "match",
+          ["get", "type_id"],
+          1,
+          "#FF0000", // ประเภท 1 - สีแดง - ชุมชนแออัด
+          2,
+          "#00FF00", // ประเภท 2 - สีเขียว - ชุมชนชานเมือง
+          3,
+          "#0000FF", // ประเภท 3 - สีน้ำเงิน - ชุมชนหมู่บ้านจัดสรร
+          4,
+          "#FFFF00", // ประเภท 4 - สีเหลือง - เคหะชุมชน
+          5,
+          "#FF00FF", // ประเภท 5 - สีม่วง - ชุมชนเมือง
+          6,
+          "#00FFFF", // ประเภท 6 - สีฟ้า - ชุมชนอาคารสูง
+          "#888888", // ค่าอื่นๆ - สีเทา - ไม่ทราบข้อมูล
         ],
-        'circle-opacity': 0.8,
-        'circle-stroke-width': 1,
-        'circle-stroke-color': '#ffffff'
+        "circle-opacity": 0.8,
+        "circle-stroke-width": 1,
+        "circle-stroke-color": "#ffffff",
       },
       layout: {
-        'visibility': 'none' // Set initial visibility to none
-      }
+        visibility: "none", // Set initial visibility to none
+      },
     });
 
     // เพิ่ม popup เมื่อคลิกที่จุด
-    map.value.on('click', 'community-layer', (e) => {
+    map.value.on("click", "community-layer", (e) => {
       const coordinates = e.features[0].geometry.coordinates.slice();
       const name = e.features[0].properties.name;
-      
+
       new maplibregl.Popup()
         .setLngLat(coordinates)
         .setHTML(`<h3>${name}</h3>`)
@@ -350,12 +354,12 @@ const initializeMap = async () => {
     });
 
     // เปลี่ยน cursor เมื่อ hover บนจุด
-    map.value.on('mouseenter', 'community-layer', () => {
-      map.value.getCanvas().style.cursor = 'pointer';
+    map.value.on("mouseenter", "community-layer", () => {
+      map.value.getCanvas().style.cursor = "pointer";
     });
-    
-    map.value.on('mouseleave', 'community-layer', () => {
-      map.value.getCanvas().style.cursor = '';
+
+    map.value.on("mouseleave", "community-layer", () => {
+      map.value.getCanvas().style.cursor = "";
     });
   });
 };

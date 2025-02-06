@@ -1,13 +1,20 @@
 <template>
-  <div :class="[
-    'drop-shadow-md bg-white flex flex-col z-30 sm:z-10',
-    'md:relative', 
-    isMobileOpen ? 'fixed inset-0 w-48' : 'hidden md:flex'
-  ]">
+  <div
+    :class="[
+      'drop-shadow-md bg-white flex flex-col z-30 sm:z-10',
+      'md:relative',
+      isMobileOpen ? 'fixed inset-0 w-48' : 'hidden md:flex',
+    ]"
+  >
     <div class="flex justify-end md:hidden p-4" v-if="isMobileOpen">
       <button @click="$emit('close')" class="text-gray-500">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          />
         </svg>
       </button>
     </div>
@@ -75,7 +82,9 @@
 
 <script setup>
 import { ref, computed, markRaw } from "vue";
-import { useRoute } from 'vue-router';
+import { useRoute } from "vue-router";
+import { useProvinces } from "@/composables/useProvinces";
+import { useProvinceMenus } from "@/composables/useProvinceMenus";
 
 import SvgMarker from "@/components/Svg/SvgMarker.vue";
 import SvgAddPin from "@/components/Svg/SvgAddPin.vue";
@@ -85,123 +94,57 @@ import SvgMap from "@/components/Svg/SvgMap.vue";
 import SvgHome from "@/components/Svg/SvgHome.vue";
 
 const route = useRoute();
+const { provinces } = useProvinces();
+const { getProvinceMenus } = useProvinceMenus();
 
-const allMenus = ref([
-  // Home Menus
+// เมนูหน้าหลัก
+const homeMenus = [
   {
     id: "home",
     name: "หน้าหลัก",
     role: "home",
     path: "/",
     icon: markRaw(SvgHome),
-    city: "home"
+    city: "home",
   },
   {
     id: "dashboard",
     name: "แดชบอร์ด",
-    role: "dashboard", 
+    role: "dashboard",
     path: "/dashboard",
     icon: markRaw(SvgDashboard),
-    city: "home"
+    city: "home",
   },
-  // Bangkok Menus
-  {
-    id: "bangkok-location",
-    name: "บันทึก",
-    role: "location",
-    path: "/bangkok",
-    icon: markRaw(SvgAddPin),
-    city: "bangkok",
-    cityName: "กรุงเทพฯ"
-  },
-  {
-    id: "bangkok-items", 
-    name: "รายการ",
-    role: "items",
-    path: "/bangkok/items",
-    icon: markRaw(SvgTable),
-    city: "bangkok",
-    cityName: "กรุงเทพ"
-  },
-  {
-    id: "bangkok-map",
-    name: "แผนที่",
-    role: "map", 
-    path: "/bangkok/map",
-    icon: markRaw(SvgMap),
-    city: "bangkok",
-    cityName: "กรุงเทพฯ"
-  },
-  {
-    id: "bangkok-fondue",
-    name: "Fondue",
-    role: "fondue",
-    path: "/bangkok/fondue", 
-    icon: markRaw(SvgMarker),
-    city: "bangkok",
-    cityName: "กรุงเทพฯ"
-  },
-  // Lamphun Menus
-  {
-    id: "lamphun-location",
-    name: "บันทึก",
-    role: "location",
-    path: "/lamphun",
-    icon: markRaw(SvgAddPin),
-    city: "lamphun",
-    cityName: "ลำพูน"
-  },
-  {
-    id: "lamphun-items",
-    name: "รายการ",
-    role: "items",
-    path: "/lamphun/items",
-    icon: markRaw(SvgTable),
-    city: "lamphun",
-    cityName: "ลำพูน"
-  },
-  {
-    id: "lamphun-map",
-    name: "แผนที่",
-    role: "map",
-    path: "/lamphun/map",
-    icon: markRaw(SvgMap),
-    city: "lamphun",
-    cityName: "ลำพูน"
-  },
-]);
-
-// แยกเมนูหน้าหลักออกมา
-const homeMenus = computed(() => {
-  return allMenus.value.filter(menu => menu.city === 'home');
-});
+];
 
 // จัดกลุ่มเมนูตามเมือง
 const groupedCityMenus = computed(() => {
   const currentPath = route.path;
-  const pathSegments = currentPath.split('/');
-  const currentCity = pathSegments[1] || 'home';
-  
-  if (currentCity === 'home' || currentCity === 'dashboard') {
+  const pathSegments = currentPath.split("/");
+  const currentCity = pathSegments[1] || "home";
+
+  if (currentCity === "home" || currentCity === "dashboard") {
     return [];
   }
 
-  const cityMenus = allMenus.value.filter(menu => menu.city === currentCity);
-  if (cityMenus.length === 0) return [];
+  const province = provinces.find((p) => p.path === currentCity);
+  if (!province) return [];
 
-  return [{
-    city: currentCity,
-    cityName: cityMenus[0].cityName,
-    menus: cityMenus
-  }];
+  return [
+    {
+      city: currentCity,
+      cityName: province.name,
+      menus: getProvinceMenus(currentCity, province.name),
+    },
+  ];
 });
 
 defineProps({
   isMobileOpen: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
-defineEmits(['close']);
+defineEmits(["close"]);
 </script>

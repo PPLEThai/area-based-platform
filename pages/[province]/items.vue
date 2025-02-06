@@ -44,6 +44,7 @@
               <th scope="col" class="px-3 py-3 w-6 text-center">ชื่อ</th>
               <th scope="col" class="px-3 py-3 w-48 text-center">รายละเอียด</th>
               <th scope="col" class="px-3 py-3 w-20 text-center">ประเภท</th>
+              <!-- <th scope="col" class="px-3 py-3 w-20 text-center">วันที่สร้าง</th> -->
               <th v-if="showMine" scope="col" class="px-3 py-3 w-2 text-center">ลบ</th>
             </tr>
           </thead>
@@ -68,9 +69,9 @@
                 {{ item.sub_name }}
               </td>
               <!-- <td class="px-3 py-3 text-start font-light">
-                <div>{{ formatDate(item.created).formattedDate }}</div>
-                <div>{{ formatDate(item.created).formattedTime }}</div>
-              </td> -->
+                  <div>{{ formatDate(item.created).formattedDate }}</div>
+                  <div>{{ formatDate(item.created).formattedTime }}</div>
+                </td> -->
               <td v-if="showMine" class="px-3 py-3 text-center">
                 <a
                   href="#"
@@ -115,10 +116,10 @@
     </div>
 
     <div id="map-container" class="w-full h-[200px] md:w-[30%] md:h-full">
-      <MapLibreLamphunItems
+      <MapLibre
         :mapStyle="mapStyle"
-        :center="[98.952368, 17.991376]"
-        :zoom="8"
+        :center="[100.523186, 13.736717]"
+        :zoom="10"
         :features="geoJsonFeatures"
         @fitBoundingBox="fitBoundingBoxOnMap"
         ref="mapRef"
@@ -139,88 +140,34 @@
     <EditModal
       v-if="editModalOpen"
       :isOpen="editModalOpen"
-      :detail="editForm.detail"
-      :name="editForm.name"
-      :subCategory="editForm.subcategory_id"
-      title="แก้ไขข้อมูล"
+      :title="'แก้ไขข้อมูล'"
+      :initialData="editForm"
+      :userEmail="userEmail"
       @cancel="closeEditModal"
-      @confirm="submitEditForm"
-    >
-      <div class="flex flex-col sm:flex-row">
-        <!-- Map edit -->
-        <div class="p-4 w-full sm:w-[50%]">
-          <div class="h-full">
-            <div class="h-full">
-              <div class="h-[300px] w-full sm:h-full">
-                <MapLibreEditModal
-                  :mapStyle="mapStyle"
-                  :center="[98.952368, 17.991376]"
-                  @features-updated="updateFeatures"
-                  :zoom="8"
-                  ref="editMapRef"
-                  :geom="editForm.geom"
-                />
-                {{ editForm.geom }}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Form edit -->
-        <div class="p-4 w-full sm:w-[50%]">
-          <div class="mb-4">
-            <label for="name" class="block text-sm font-medium text-gray-700">ชื่อ</label>
-            <input
-              id="name"
-              type="text"
-              v-model="editForm.name"
-              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
-
-          <div class="mb-4">
-            <label for="detail" class="block text-sm font-medium text-gray-700"
-              >รายละเอียด</label
-            >
-            <textarea
-              id="detail"
-              v-model="editForm.detail"
-              rows="4"
-              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-            ></textarea>
-          </div>
-
-          <div>
-            <Dropdowns
-              :resetTrigger="resetDropdown"
-              :initialCategoryId="Number(String(editForm.subcategory_id).charAt(0))"
-              :initialSubcategoryId="editForm.subcategory_id"
-              @subcategory-changed="handleSelectionChanged"
-            />
-            <p
-              v-if="isSubmitted && (!selectedCategory || !editForm.subcategory_id)"
-              class="text-red-500 text-sm"
-            >
-              กรุณาเลือกหมวดหมู่และหมวดหมู่ย่อย
-            </p>
-          </div>
-        </div>
-      </div>
-    </EditModal>
+      @updated="fetchData(page)"
+    />
   </div>
 </template>
 
 <script setup>
+defineOptions({
+  name: "Items",
+});
+import { useRoute } from "vue-router";
 import { useUserStore } from "@/stores/useStore";
 import { ref, computed, onMounted, nextTick } from "vue";
 import { TrashIcon, PencilIcon } from "@heroicons/vue/24/solid";
-import Modal from "@/components/Modal.vue";
-import EditModal from "@/components/EditModal.vue";
+import Modal from "@/components/shared/Modal.vue";
+import EditModal from "@/components/shared/EditModal.vue";
 import { useToast } from "vue-toastification";
 import { useUrbanIssues } from "@/composables/useUrbanIssues";
 import * as Terraformer from "@terraformer/wkt";
-import MapLibreLamphunItems from "@/components/Lamphun/MapLibreLamphunItems.vue";
-import MapLibreEditModal from "@/components/MapLibreEditModal.vue";
+import { useProvinces } from "@/composables/useProvinces";
+
+const route = useRoute();
+const province = ref(route.params.province);
+
+const { getProvinceId } = useProvinces();
 
 const userStore = useUserStore();
 const user = userStore.$state;
@@ -237,9 +184,6 @@ const totalPages = ref(0);
 const hasMore = ref(false);
 const mapStyle = ref("https://basemaps.cartocdn.com/gl/positron-gl-style/style.json");
 const userEmail = user.email;
-const resetDropdown = ref(false);
-const isSubmitted = ref(false);
-// const geom = ref([]);
 
 const editModalOpen = ref(false);
 const editForm = reactive({
@@ -256,10 +200,6 @@ const { getUrbanIssues, deleteUrbanIssue, updateUrbanIssue } = useUrbanIssues();
 const emit = defineEmits(["fitBoundingBox"]); // Define the event
 
 const filteredItems = computed(() => items.value);
-
-const handleSelectionChanged = (selectedSubCategory) => {
-  editForm.subcategory_id = selectedSubCategory.selectedCategoryId;
-};
 
 const geoJsonFeatures = computed(() =>
   filteredItems.value
@@ -298,9 +238,8 @@ function openEditModal(item) {
   editForm.id = item.id;
   editForm.name = item.name;
   editForm.detail = item.detail;
-  editForm.subcategory_id = item.sub_id;
+  editForm.subcategory_id = parseInt(item.sub_id);
   editForm.geom = item.geom;
-  // editForm.ownership_id = item.ownership_id;
   editModalOpen.value = true;
 }
 
@@ -335,30 +274,11 @@ async function deleteItem(id) {
   }
 }
 
-// Submit Edit Form
-async function submitEditForm() {
-  try {
-    const payload = {
-      name: editForm.name,
-      detail: editForm.detail,
-      subcategory_id: editForm.subcategory_id,
-      email: userEmail,
-      // geom: editForm.geom,
-      // images: [],
-    };
-    await updateUrbanIssue(editForm.id, payload);
-    toast.success("แก้ไขข้อมูลสำเร็จ");
-    closeEditModal();
-    fetchData(page.value); // Refresh data after editing
-  } catch (error) {
-    toast.error("เกิดข้อผิดพลาด: " + (error.message || "ไม่สามารถแก้ไขข้อมูลได้"));
-  }
-}
-
 async function fetchData(currentPage = 1) {
   try {
     const params = {
       page: currentPage,
+      province_id: getProvinceId(province.value),
       ...(showMine.value && { email: userEmail }),
     };
     const data = await getUrbanIssues(params);
@@ -418,29 +338,6 @@ function calculateBoundingBox(geometry) {
   }
   return null;
 }
-
-const updateFeatures = (newFeatures) => {
-  // editForm.geom = newFeatures;
-  console.log(newFeatures);
-};
-
-// Function to add GeoJSON to MapLibre
-const addGeoJsonToMap = (map, geoJson) => {
-  map.addSource("wkt-geojson", {
-    type: "geojson",
-    data: geoJson,
-  });
-
-  map.addLayer({
-    id: "wkt-layer",
-    type: "line",
-    source: "wkt-geojson",
-    paint: {
-      "line-color": "#ff0000",
-      "line-width": 2,
-    },
-  });
-};
 
 // Fit Bounding Box on Map
 function fitBoundingBoxOnMap(bbox) {
