@@ -36,7 +36,7 @@ const showMenuCard = ref(true);
 
 const onMapLoaded = async (map) => {
   mapInstance.value = map; // Store the MapLibre instance
-  await fetchUrbanIssues(); // Fetch and render the data after the map is ready
+  // await fetchUrbanIssues(); // Fetch and render the data after the map is ready
 };
 
 const checkCategoryColor = (id) => {
