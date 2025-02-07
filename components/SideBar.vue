@@ -86,11 +86,7 @@ import { useRoute } from "vue-router";
 import { useProvinces } from "@/composables/useProvinces";
 import { useProvinceMenus } from "@/composables/useProvinceMenus";
 
-import SvgMarker from "@/components/Svg/SvgMarker.vue";
-import SvgAddPin from "@/components/Svg/SvgAddPin.vue";
 import SvgDashboard from "@/components/Svg/SvgDashboard.vue";
-import SvgTable from "@/components/Svg/SvgTable.vue";
-import SvgMap from "@/components/Svg/SvgMap.vue";
 import SvgHome from "@/components/Svg/SvgHome.vue";
 
 const route = useRoute();

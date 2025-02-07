@@ -2,8 +2,13 @@
   <div class="w-full h-full flex">
     <div class="w-full h-full relative">
       <!-- Map Component -->
-      <MapLibreLamphunMap ref="map" :mapStyle="mapStyle" :center="[98.952368, 17.991376]" :zoom="8.4"
-        @mapLoaded="onMapLoaded" />
+      <MapLibreLamphunMap
+        ref="map"
+        :mapStyle="mapStyle"
+        :center="[98.952368, 17.991376]"
+        :zoom="8.4"
+        @mapLoaded="onMapLoaded"
+      />
     </div>
   </div>
 </template>
@@ -16,7 +21,7 @@ import { useToast } from "vue-toastification";
 import { useCategories } from "@/composables/useCategories";
 import { Popup } from "maplibre-gl"; // Import Popup from MapLibre
 
-import MapLibreLamphunMap from "@/components/Lamphun/MapLibreLamphunMap.vue";
+import MapLibreLamphunMap from "@/components/lamphun/MapLibreLamphunMap.vue";
 
 const toast = useToast();
 const categoryList = useCategories();
@@ -166,14 +171,18 @@ const showPopup = (properties, coordinates) => {
   // Create a new popup
   const popup = new Popup({ offset: 15 }) // Adjust offset as needed
     .setLngLat([coordinates.lng, coordinates.lat])
-    .setHTML(`
+    .setHTML(
+      `
       <div>
         <h3><strong>${properties.name}</strong></h3>
         <p><strong>หมวดหมู่ย่อย:</strong> ${properties.sub_name}</p>
         <p><strong>รายละเอียด:</strong> ${properties.detail}</p>
-        <p><strong>นำเข้าข้อมูลเมื่อ:</strong> ${new Date(properties.created).toLocaleString()}</p>
+        <p><strong>นำเข้าข้อมูลเมื่อ:</strong> ${new Date(
+          properties.created
+        ).toLocaleString()}</p>
       </div>
-    `)
+    `
+    )
     .addTo(mapInstance.value); // Add the popup to the map
 };
 

@@ -118,7 +118,7 @@
     <div id="map-container" class="w-full h-[200px] md:w-[30%] md:h-full">
       <MapLibre
         :mapStyle="mapStyle"
-        :center="[100.523186, 13.736717]"
+        :center="provinceLocation"
         :zoom="10"
         :features="geoJsonFeatures"
         @fitBoundingBox="fitBoundingBoxOnMap"
@@ -163,11 +163,13 @@ import { useToast } from "vue-toastification";
 import { useUrbanIssues } from "@/composables/useUrbanIssues";
 import * as Terraformer from "@terraformer/wkt";
 import { useProvinces } from "@/composables/useProvinces";
+import { useProvinceLocation } from "@/composables/useProvinceLocation";
 
 const route = useRoute();
 const province = ref(route.params.province);
 
 const { getProvinceId } = useProvinces();
+const { getProvinceLocation } = useProvinceLocation();
 
 const userStore = useUserStore();
 const user = userStore.$state;
@@ -192,6 +194,12 @@ const editForm = reactive({
   detail: "",
   subcategory_id: null,
   geom: null,
+});
+
+const provinceLocation = computed(() => {
+  const location = getProvinceLocation(route.params.province);
+  console.log(location);
+  return [location.center[0], location.center[1]];
 });
 
 // Utilities and Methods
