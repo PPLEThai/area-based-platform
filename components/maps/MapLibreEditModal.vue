@@ -1,26 +1,6 @@
 <template>
   <div class="relative w-full h-full">
-    <!-- Search Box -->
-    <div class="absolute top-4 left-4 z-10 w-64 sm:w-96">
-      <input
-        type="text"
-        v-model="searchQuery"
-        @keydown.enter="performSearch"
-        placeholder="ค้นหาสถานที่ เช่น เพชรเกษม 48"
-        class="w-full p-2 border rounded-lg shadow"
-      />
-      <ul v-if="searchResults.length" class="bg-white border rounded-lg shadow mt-2">
-        <li
-          v-for="result in searchResults"
-          :key="result.id"
-          @click="selectResult(result)"
-          class="p-2 hover:bg-gray-200 cursor-pointer"
-        >
-          {{ result.name }}
-        </li>
-      </ul>
-      <p v-if="errorMessage" class="mt-2 text-red-500">{{ errorMessage }}</p>
-    </div>
+    <SearchBox @select-result="selectResult" />
 
     <!-- Map Container -->
     <div ref="mapContainer" class="w-full h-full"></div>
@@ -33,6 +13,7 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css";
 import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
+import SearchBox from "@/components/maps/SearchBox.vue";
 
 // Props
 const props = defineProps({
@@ -76,6 +57,9 @@ const searchQuery = ref("");
 const searchResults = ref([]);
 const errorMessage = ref("");
 const currentMarker = ref(null);
+
+const config = useRuntimeConfig();
+const mapKey = config.public.apiMapKey;
 
 // Initialize Map
 const initializeMap = async () => {
@@ -257,7 +241,7 @@ const performSearch = async () => {
 
   const url = `https://search.longdo.com/mapsearch/json/search?keyword=${encodeURIComponent(
     searchQuery.value
-  )}&limit=5&key=fortestonlydonotuseinproduction!`;
+  )}&limit=5&key=${mapKey}`;
 
   try {
     const response = await fetch(url);
@@ -282,12 +266,10 @@ const selectResult = (result) => {
     zoom: 14,
   });
 
-  // Remove existing marker if it exists
   if (currentMarker.value) {
     currentMarker.value.remove();
   }
 
-  // Create and store new marker
   currentMarker.value = new maplibregl.Marker()
     .setLngLat([result.lon, result.lat])
     .setPopup(

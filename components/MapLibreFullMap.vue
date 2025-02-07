@@ -1,26 +1,6 @@
 <template>
   <div class="relative w-full h-full">
-    <!-- Search Box -->
-    <div class="absolute top-4 left-4 z-10 w-72">
-      <input
-        type="text"
-        v-model="searchQuery"
-        @keydown.enter="performSearch"
-        placeholder="Search for a place..."
-        class="w-full p-2 border rounded-lg shadow"
-      />
-      <ul v-if="searchResults.length" class="bg-white border rounded-lg shadow mt-2">
-        <li
-          v-for="result in searchResults"
-          :key="result.id"
-          @click="selectResult(result)"
-          class="p-2 hover:bg-gray-200 cursor-pointer"
-        >
-          {{ result.name }}
-        </li>
-      </ul>
-      <p v-if="errorMessage" class="mt-2 text-red-500">{{ errorMessage }}</p>
-    </div>
+    <SearchBox @select-result="selectResult" />
 
     <!-- Layer Selection -->
     <LayerSelection @update:layers="handleLayerUpdate" />
@@ -36,6 +16,7 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import communityData from "@/assets/data/community.json";
 import LayerSelection from "./LayerSelection.vue";
+import SearchBox from "@/components/maps/SearchBox.vue";
 
 const props = defineProps({
   mapStyle: {
@@ -96,31 +77,6 @@ watch(
   { deep: true }
 );
 
-// search display
-const performSearch = async () => {
-  if (!searchQuery.value.trim()) return;
-
-  const url = `https://search.longdo.com/mapsearch/json/search?keyword=${encodeURIComponent(
-    searchQuery.value
-  )}&limit=5&key=fortestonlydonotuseinproduction!`;
-
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-
-    if (data.data && data.data.length > 0) {
-      searchResults.value = data.data;
-      errorMessage.value = "";
-    } else {
-      searchResults.value = [];
-      errorMessage.value = `ไม่พบสถานที่ที่ตรงกับ "${searchQuery.value}"`;
-    }
-  } catch (error) {
-    console.error("Search error:", error);
-    errorMessage.value = "เกิดข้อผิดพลาดในการค้นหา กรุณาลองใหม่";
-  }
-};
-
 const selectResult = (result) => {
   map.value.flyTo({
     center: [result.lon, result.lat],
@@ -133,9 +89,6 @@ const selectResult = (result) => {
       new maplibregl.Popup().setHTML(`<h3>${result.name}</h3><p>${result.address}</p>`)
     )
     .addTo(map.value);
-
-  searchResults.value = [];
-  searchQuery.value = "";
 };
 
 const handleLayerUpdate = ({ community, districtBoundary, bkkBoundary }) => {

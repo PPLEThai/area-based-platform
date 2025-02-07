@@ -21,6 +21,7 @@ export default defineNuxtConfig({
     public: {
       systemName: process.env.SYSTEM_NAME || 'กระบวนการเดินเมือง',
       apiBaseUrl: process.env.API_BASE_URL || 'http://localhost:3123',
+      apiMapKey: process.env.API_MAP_KEY || 'fortestonlydonotuseinproduction',
     },
   },
   app: {
