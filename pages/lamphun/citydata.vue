@@ -21,7 +21,7 @@ import { useToast } from "vue-toastification";
 import { useCategories } from "@/composables/useCategories";
 import { Popup } from "maplibre-gl"; // Import Popup from MapLibre
 
-import MapLibreLamphunMap from "@/components/lamphun/MapLibreLamphunMap.vue";
+import MapLibreLamphunMap from "@/components/Lamphun/MapLibreLamphunMap.vue";
 
 const toast = useToast();
 const categoryList = useCategories();
