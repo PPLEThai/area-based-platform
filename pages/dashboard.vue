@@ -11,15 +11,15 @@
             <tr>
               <th class="px-4 py-2 text-left">อันดับ</th>
               <th class="px-4 py-2 text-left">ชื่อผู้ใช้</th>
-              <th class="px-4 py-2 text-left">อีเมล</th>
+              <!-- <th class="px-4 py-2 text-left">อีเมล</th> -->
               <th class="px-4 py-2 text-right">จำนวนการปักหมุด</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(user, index) in userStats" :key="user.id" class="border-b">
               <td class="px-4 py-2">{{ index + 1 }}</td>
-              <td class="px-4 py-2">-</td>
-              <td class="px-4 py-2">{{ user.creator_mail }}</td>
+              <!-- <td class="px-4 py-2">-</td> -->
+              <td class="px-4 py-2">{{ user.creator_mail.split("@")[0] }}</td>
               <td class="px-4 py-2 text-right">{{ user.issue_count }}</td>
             </tr>
           </tbody>

@@ -64,10 +64,10 @@ export const useProvinceMenus = () => {
     lamphun: [
       {
         id: "lamphun-special",
-        name: "พิเศษ",
+        name: "City Data",
         role: "special",
         path: "/lamphun/citydata",
-        icon: markRaw(SvgMarker),
+        icon: markRaw(SvgMap),
         city: "lamphun",
         cityName: "ลำพูน"
       }
