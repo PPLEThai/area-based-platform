@@ -43,6 +43,7 @@
               <th scope="col" class="px-3 py-3 w-2 text-center">#</th>
               <th scope="col" class="px-3 py-3 w-6 text-center">ชื่อ</th>
               <th scope="col" class="px-3 py-3 w-48 text-center">รายละเอียด</th>
+              <th scope="col" class="px-3 py-3 w-16 text-center">รูปภาพ</th>
               <th scope="col" class="px-3 py-3 w-20 text-center">ประเภท</th>
               <!-- <th scope="col" class="px-3 py-3 w-20 text-center">วันที่สร้าง</th> -->
               <th v-if="showMine" scope="col" class="px-3 py-3 w-2 text-center">ลบ</th>
@@ -60,6 +61,19 @@
               </td>
               <td class="px-3 py-3 font-medium">{{ item.name }}</td>
               <td class="px-3 py-3 font-light" :title="item.detail">{{ item.detail }}</td>
+              <td class="px-3 py-3 font-light text-center">
+                <div
+                  v-if="item.images && item.images.length > 0"
+                  class="cursor-pointer"
+                  @click.stop="openImageModal(item.images)"
+                >
+                  <img :src="item.images[0]" alt="image" class="w-10 h-10 object-cover" />
+                  <span v-if="item.images.length > 1" class="text-xs text-gray-500"
+                    >+{{ item.images.length - 1 }}</span
+                  >
+                </div>
+                <div v-else class="text-gray-400 text-xs">ไม่มีรูปภาพ</div>
+              </td>
               <td class="px-3 py-3 font-light" :title="item.sub_name">
                 <img
                   :src="'/images/icons/' + item.sub_id + '.png'"
@@ -146,6 +160,58 @@
       @cancel="closeEditModal"
       @updated="fetchData(page)"
     />
+
+    <!-- Image Modal -->
+    <div
+      v-if="imageModalOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
+      @click="closeImageModal"
+    >
+      <div class="relative max-w-4xl w-full mx-4" @click.stop>
+        <button
+          @click="closeImageModal"
+          class="absolute -top-10 right-0 text-white hover:text-gray-300 p-2"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-8 w-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+        <div class="relative">
+          <img
+            :src="selectedImages[currentImageIndex]"
+            class="mx-auto max-h-[80vh] object-contain"
+          />
+          <button
+            v-if="selectedImages.length > 1"
+            @click.stop="prevImage"
+            class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 p-2 text-white hover:bg-opacity-75"
+          >
+            &lt;
+          </button>
+          <button
+            v-if="selectedImages.length > 1"
+            @click.stop="nextImage"
+            class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 p-2 text-white hover:bg-opacity-75"
+          >
+            &gt;
+          </button>
+        </div>
+        <div v-if="selectedImages.length > 1" class="text-center text-white mt-4">
+          {{ currentImageIndex + 1 }} / {{ selectedImages.length }}
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -187,6 +253,11 @@ const hasMore = ref(false);
 const mapStyle = ref("https://basemaps.cartocdn.com/gl/positron-gl-style/style.json");
 const userEmail = user.email;
 
+// Image Modal State
+const imageModalOpen = ref(false);
+const selectedImages = ref([]);
+const currentImageIndex = ref(0);
+
 const editModalOpen = ref(false);
 const editForm = reactive({
   id: null,
@@ -208,6 +279,31 @@ const { getUrbanIssues, deleteUrbanIssue, updateUrbanIssue } = useUrbanIssues();
 const emit = defineEmits(["fitBoundingBox"]); // Define the event
 
 const filteredItems = computed(() => items.value);
+
+// Image Modal Methods
+function openImageModal(images) {
+  selectedImages.value = images;
+  currentImageIndex.value = 0;
+  imageModalOpen.value = true;
+}
+
+function closeImageModal() {
+  imageModalOpen.value = false;
+  selectedImages.value = [];
+  currentImageIndex.value = 0;
+}
+
+function nextImage() {
+  if (currentImageIndex.value < selectedImages.value.length - 1) {
+    currentImageIndex.value++;
+  }
+}
+
+function prevImage() {
+  if (currentImageIndex.value > 0) {
+    currentImageIndex.value--;
+  }
+}
 
 const geoJsonFeatures = computed(() =>
   filteredItems.value

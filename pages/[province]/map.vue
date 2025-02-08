@@ -249,22 +249,29 @@ const drawGeometryWithImage = async (geomList) => {
   }
 };
 
+// Function to display geometry details
 const showPopup = (properties, coordinates) => {
-  const popup = new Popup({ offset: 15 })
+  // Create a new popup
+  const popup = new Popup({ offset: 15 }) // Adjust offset as needed
     .setLngLat([coordinates.lng, coordinates.lat])
     .setHTML(
       `
-        <div>
-          <h3><strong>${properties.name}</strong></h3>
-          <p><strong>หมวดหมู่ย่อย:</strong> ${properties.sub_name}</p>
-          <p><strong>รายละเอียด:</strong> ${properties.detail}</p>
-          <p><strong>นำเข้าข้อมูลเมื่อ:</strong> ${new Date(
-            properties.created
-          ).toLocaleString()}</p>
-        </div>
-      `
+      <div>
+        <h3><strong>${properties.name}</strong></h3>
+        ${
+          properties.images && properties.images.length > 0
+            ? `<img src="${properties.images[0]}" style="width: 200px; height: 150px; object-fit: cover; margin: 8px 0;"/>`
+            : ""
+        }
+        <p><strong>หมวดหมู่ย่อย:</strong> ${properties.sub_name}</p>
+        <p><strong>รายละเอียด:</strong> ${properties.detail}</p>
+        <p><strong>นำเข้าข้อมูลเมื่อ:</strong> ${new Date(
+          properties.created
+        ).toLocaleString()}</p>
+      </div>
+    `
     )
-    .addTo(mapInstance.value);
+    .addTo(mapInstance.value); // Add the popup to the map
 };
 
 const addCustomIcon = async (iconId, iconUrl) => {
