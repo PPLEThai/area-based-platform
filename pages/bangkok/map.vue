@@ -224,6 +224,11 @@ const showPopup = (properties, coordinates) => {
       `
       <div>
         <h3><strong>${properties.name}</strong></h3>
+        ${
+          properties.images && properties.images.length > 0
+            ? `<img src="${properties.images[0]}" style="width: 200px; height: 150px; object-fit: cover; margin: 8px 0;"/>`
+            : ""
+        }
         <p><strong>หมวดหมู่ย่อย:</strong> ${properties.sub_name}</p>
         <p><strong>รายละเอียด:</strong> ${properties.detail}</p>
         <p><strong>นำเข้าข้อมูลเมื่อ:</strong> ${new Date(
