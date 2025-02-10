@@ -265,6 +265,9 @@ const editForm = reactive({
   detail: "",
   subcategory_id: null,
   geom: null,
+  ownership_id: null,
+  stakeholder_id: null,
+  images: [],
 });
 
 const provinceLocation = computed(() => {
@@ -339,11 +342,15 @@ function closeModal() {
 
 // Open Edit Modal
 function openEditModal(item) {
+  console.log(item);
   editForm.id = item.id;
   editForm.name = item.name;
   editForm.detail = item.detail;
   editForm.subcategory_id = parseInt(item.sub_id);
+  editForm.images = item.images;
   editForm.geom = item.geom;
+  editForm.ownership_id = item.ownership_id;
+  editForm.stakeholder_id = item.stakeholder_id;
   editModalOpen.value = true;
 }
 
@@ -355,7 +362,9 @@ function closeEditModal() {
   editForm.detail = "";
   editForm.subcategory_id = null;
   editForm.geom = null;
-  // editForm.ownership_id = null;
+  editForm.ownership_id = null;
+  editForm.stakeholder_id = null;
+  editForm.images = [];
 }
 
 async function confirmDelete() {
