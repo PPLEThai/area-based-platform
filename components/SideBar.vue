@@ -25,7 +25,7 @@
         :key="menu.id"
         class="divide-y border-b-none md:border-b"
       >
-        <NuxtLink :id="menu.id" :to="menu.path">
+        <NuxtLink :id="menu.id" :to="menu.path" v-if="!menu.external">
           <div
             :class="[
               'flex flex-col items-center p-3 text-sm font-medium',
@@ -44,6 +44,16 @@
             </div>
           </div>
         </NuxtLink>
+        <a :id="menu.id" :href="menu.path" target="_blank" v-else>
+          <div
+            class="flex flex-col items-center p-3 text-sm font-medium hover:text-black hover:bg-subprimary"
+          >
+            <component :is="menu.icon" class="w-4 h-4" />
+            <div class="text-sm mt-1 text-nowrap">
+              {{ menu.name }}
+            </div>
+          </div>
+        </a>
       </div>
       <!-- แสดงเมนูตามเมือง -->
       <div v-for="cityGroup in groupedCityMenus" :key="cityGroup.city">
@@ -88,6 +98,7 @@ import { useProvinceMenus } from "@/composables/useProvinceMenus";
 
 import SvgDashboard from "@/components/Svg/SvgDashboard.vue";
 import SvgHome from "@/components/Svg/SvgHome.vue";
+import SvgFeedback from "@/components/Svg/SvgFeedback.vue";
 
 const route = useRoute();
 const { provinces } = useProvinces();
@@ -102,6 +113,7 @@ const homeMenus = [
     path: "/",
     icon: markRaw(SvgHome),
     city: "home",
+    external: false,
   },
   {
     id: "dashboard",
@@ -110,6 +122,16 @@ const homeMenus = [
     path: "/dashboard",
     icon: markRaw(SvgDashboard),
     city: "home",
+    external: false,
+  },
+  {
+    id: "feedback",
+    name: "Feedback",
+    role: "feedback",
+    path: "https://forms.gle/d8Dp2h9CVtyH4pKu5",
+    icon: markRaw(SvgFeedback),
+    city: "home",
+    external: true,
   },
 ];
 

@@ -1,6 +1,20 @@
 <template>
   <div class="relative w-full h-full">
     <SearchBox @select-result="selectResult" />
+
+    <!-- Basemap Selection -->
+    <div class="absolute bottom-10 right-4 z-10 bg-white p-1.5 rounded shadow-lg">
+      <select
+        v-model="selectedBasemap"
+        class="p-1.5 rounded border text-sm"
+        @change="changeBasemap"
+      >
+        <option value="light">แผนที่พื้นฐาน</option>
+        <option value="dark">แผนที่มืด</option>
+        <option value="satellite">แผนที่ดาวเทียม</option>
+      </select>
+    </div>
+
     <div ref="mapContainer" class="w-full h-full"></div>
   </div>
 </template>
@@ -40,6 +54,28 @@ const props = defineProps({
   },
 });
 
+// Basemap styles
+const basemapStyles = {
+  light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+  dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+  satellite: "https://api.maptiler.com/maps/hybrid/style.json?key=DMl4AxokgMPvgzLikrFx",
+};
+
+const selectedBasemap = ref("light");
+
+const changeBasemap = () => {
+  if (map.value) {
+    const currentCenter = map.value.getCenter();
+    const currentZoom = map.value.getZoom();
+
+    map.value.setStyle(basemapStyles[selectedBasemap.value]);
+
+    setTimeout(() => {
+      drawProvinceBoundary();
+    }, 1000);
+  }
+};
+
 // Emits
 const emit = defineEmits(["features-updated", "mapLoaded"]);
 
@@ -60,7 +96,7 @@ const initializeMap = async () => {
 
   map.value = new maplibregl.Map({
     container: mapContainer.value, // ใช้ DOM element ที่ mapContainer ชี้ไป
-    style: props.mapStyle,
+    style: basemapStyles[selectedBasemap.value],
     center: props.center,
     zoom: props.zoom,
   });

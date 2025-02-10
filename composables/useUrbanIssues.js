@@ -54,7 +54,7 @@ export const useUrbanIssues = () => {
         try {
             const response = await $axios.patch(`/urbanissues/${id}`, payload, {
                 headers: {
-                    'Content-Type': 'application/json', // Ensure proper content type
+                    'Content-Type': 'multipart/form-data'
                 },
             });
             return response.data; // Return the response data

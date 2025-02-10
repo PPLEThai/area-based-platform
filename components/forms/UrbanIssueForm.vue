@@ -79,7 +79,7 @@
               >
                 <option value="null" disabled>เลือกผู้มีส่วนได้ส่วนเสีย</option>
                 <option
-                  v-for="stackholder in stackholderList"
+                  v-for="stackholder in stakeholderList"
                   :key="stackholder.id"
                   :value="stackholder.id"
                 >
@@ -236,6 +236,7 @@ import Modal from "@/components/shared/Modal.vue";
 import maplibregl from "maplibre-gl";
 import { useProvinceLocation } from "@/composables/useProvinceLocation";
 import { useProvinces } from "@/composables/useProvinces";
+import { useUrbanOptions } from "@/composables/useUrbanOptions";
 
 const userStore = useUserStore();
 const user = userStore.$state;
@@ -270,26 +271,7 @@ const location = computed(() => getProvinceLocation(props.province));
 const { getProvinceId } = useProvinces();
 const provinceId = computed(() => getProvinceId(props.province));
 
-const ownershipList = [
-  { id: 1, name: "ท้องถิ่น" },
-  { id: 2, name: "หน่วยงานอื่น" },
-  { id: 3, name: "เอกชน" },
-  { id: 4, name: "ไม่ทราบ" },
-];
-
-const stackholderList = [
-  { id: 1, name: "ประชาชนทั่วไป" },
-  { id: 2, name: "แม่ค้า" },
-  { id: 3, name: "ข้าราชการ" },
-  { id: 4, name: "ผู้ใช้รถใช้ถนน" },
-  { id: 5, name: "บริษัทพัฒนาเมือง" },
-  { id: 6, name: "startup" },
-  { id: 7, name: "ผู้ประกอบการทางสังคม" },
-  { id: 8, name: "กลุ่มประชาสังคม" },
-  { id: 9, name: "NGOs มูลนิธิ" },
-  { id: 10, name: "ผู้ประกอบการเอกชนที่เกี่ยวข้อง" },
-  { id: 11, name: "อื่นๆ" },
-];
+const { ownershipList, stakeholderList } = useUrbanOptions();
 
 const onMapLoaded = async (map) => {
   mapInstance.value = map; // Store the MapLibre instance
