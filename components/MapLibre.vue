@@ -126,7 +126,16 @@ export default {
     },
     fitBoundingBox(bbox) {
       if (this.map) {
-        this.map.fitBounds(bbox, { padding: 14 });
+        // ถ้าเป็น point ให้ใช้ flyTo แทน fitBounds
+        if (bbox[0][0] === bbox[1][0] && bbox[0][1] === bbox[1][1]) {
+          this.map.flyTo({
+            center: bbox[0],
+            zoom: 14,
+          });
+        } else {
+          // ถ้าเป็น geometry อื่นๆ ใช้ fitBounds เหมือนเดิม
+          this.map.fitBounds(bbox, { padding: 14 });
+        }
       }
     },
   },

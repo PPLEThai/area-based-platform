@@ -143,8 +143,9 @@ const drawProvinceBoundary = () => {
   const provinceFeature = {
     type: "FeatureCollection",
     features: thBoundary.features.filter((feature) => {
-      const thProvinceId = feature.properties.id.replace("TH", "");
-      return thProvinceId === props.provinceId;
+      // const thProvinceId = feature.properties.id.replace("TH", ""); // for th_minified.json
+      const thProvinceId = feature.properties.id; // for th_simply.json ละเอียดกว่า
+      return thProvinceId === Number(props.provinceId);
     }),
   };
 

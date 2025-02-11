@@ -1,7 +1,7 @@
 <template>
   <div
     :class="[
-      'drop-shadow-md bg-white flex flex-col z-30 sm:z-10',
+      'drop-shadow-md bg-white flex flex-col z-30 sm:z-10 overflow-y-auto',
       'md:relative',
       isMobileOpen ? 'fixed inset-0 w-48' : 'hidden md:flex',
     ]"

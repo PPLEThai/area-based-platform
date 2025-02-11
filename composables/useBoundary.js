@@ -3,7 +3,7 @@ import lamphunBoundaryData from '@/assets/data/lamphun_province.json';
 import bkkDistrictBoundaryDta from '@/assets/data/district_minify.json';
 import lamphunDistrictBoundaryDta from '@/assets/data/lamphun_district.json';
 import lamphunSubDistrictBoundaryDta from '@/assets/data/lamphun_subdistrict.json';
-import thailandBoundaryData from '@/assets/data/th_minified.json';
+import thailandBoundaryData from '@/assets/data/th_simply.json';
 
 export function useThailandBoundary() {
     const getThailandBoundaryData = () => {
