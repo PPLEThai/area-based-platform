@@ -9,7 +9,7 @@ export const useProvinceMenus = () => {
   const defaultMenus = (path, cityName) => [
     {
       id: `${path}-location`,
-      name: "บันทึก",
+      name: "บันทึกทั่วไป",
       role: "location",
       path: `/${path}`,
       icon: markRaw(SvgAddPin),
@@ -18,7 +18,7 @@ export const useProvinceMenus = () => {
     },
     {
       id: `${path}-items`,
-      name: "รายการ",
+      name: "รายการทั่วไป",
       role: "items",
       path: `/${path}/items`,
       icon: markRaw(SvgTable),
@@ -45,6 +45,24 @@ export const useProvinceMenus = () => {
         role: "fondue",
         path: "/bangkok/fondue",
         icon: markRaw(SvgMarker),
+        city: "bangkok",
+        cityName: "กรุงเทพฯ"
+      },
+      {
+        id: "bangkok-childhood",
+        name: "ศูนย์เด็กเล็ก",
+        role: "childhood",
+        path: "/bangkok/childhood",
+        icon: markRaw(SvgAddPin),
+        city: "bangkok",
+        cityName: "กรุงเทพฯ"
+      },
+      {
+        id: "bangkok-childhood-items",
+        name: "รายการ ศพด.",
+        role: "childhood-items",
+        path: "/bangkok/childhood-items",
+        icon: markRaw(SvgTable),
         city: "bangkok",
         cityName: "กรุงเทพฯ"
       }

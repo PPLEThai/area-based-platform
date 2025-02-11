@@ -112,29 +112,41 @@
           </div>
         </div>
 
-        <!-- Upload image -->
+        <!-- Upload media -->
         <div class="grid gap-2 mb-2 md:grid-cols-1">
           <label
             class="block text-sm font-medium text-gray-900 dark:text-white"
             for="multiple_files"
-            >อัปโหลดรูปภาพประกอบ (ไม่เกิน 5 รูป)</label
+            >อัปโหลดรูปภาพหรือวิดีโอประกอบ (ไม่เกิน 5 ไฟล์)</label
           >
           <input
             class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
             id="multiple_files"
             type="file"
             multiple
-            accept="image/*"
+            accept="image/*,video/*"
             @change="handleFileUpload"
           />
           <p class="text-sm text-gray-500 dark:text-gray-300" id="file_input_help">
-            PNG, JPG (ขนาดไม่เกิน 800x400px และ 5MB).
+            รูปภาพ: PNG, JPG (ขนาดไม่เกิน 800x400px และ 5MB) และวิดีโอ: MP4, WebM
+            (ขนาดไม่เกิน 30MB)
           </p>
 
-          <!-- แสดงตัวอย่างรูปภาพ -->
+          <!-- แสดงตัวอย่างรูปภาพและวิดีโอ -->
           <div v-if="filePreviews.length" class="my-4 grid grid-cols-3 gap-2">
             <div v-for="(preview, index) in filePreviews" :key="index" class="relative">
-              <img :src="preview" alt="Preview" class="w-full h-auto rounded-lg" />
+              <img
+                v-if="preview.type === 'image'"
+                :src="preview.url"
+                alt="Preview"
+                class="w-full h-auto rounded-lg"
+              />
+              <video
+                v-else-if="preview.type === 'video'"
+                :src="preview.url"
+                class="w-full h-auto rounded-lg"
+                controls
+              ></video>
               <button
                 type="button"
                 class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
@@ -453,29 +465,38 @@ const updateFeatures = (newFeatures) => {
 
 const handleFileUpload = (event) => {
   const files = event.target.files;
+  const toast = useToast();
 
   // จำกัดจำนวนไฟล์ที่อัปโหลดได้ (สูงสุด 5 ไฟล์)
   if (files.length + uploadedFiles.value.length > 5) {
-    const toast = useToast();
-    toast.error("คุณสามารถอัปโหลดได้สูงสุด 5 รูปภาพเท่านั้น");
+    toast.error("คุณสามารถอัปโหลดได้สูงสุด 5 ไฟล์เท่านั้น");
     return;
   }
 
   for (const file of files) {
-    // ตรวจสอบว่าไฟล์เป็นรูปภาพ
-    if (!file.type.startsWith("image/")) {
-      const toast = useToast();
-      toast.error("กรุณาอัปโหลดเฉพาะไฟล์รูปภาพ");
+    // ตรวจสอบประเภทไฟล์
+    if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) {
+      toast.error("กรุณาอัปโหลดเฉพาะไฟล์รูปภาพหรือวิดีโอ");
+      continue;
+    }
+
+    // ตรวจสอบขนาดไฟล์วิดีโอ
+    if (file.type.startsWith("video/") && file.size > 30 * 1024 * 1024) {
+      // 50MB
+      toast.error("ขนาดไฟล์วิดีโอต้องไม่เกิน 30MB");
       continue;
     }
 
     // เพิ่มไฟล์ลงใน uploadedFiles
     uploadedFiles.value.push(file);
 
-    // สร้าง URL สำหรับแสดงตัวอย่างรูป
+    // สร้าง URL สำหรับแสดงตัวอย่าง
     const reader = new FileReader();
     reader.onload = (e) => {
-      filePreviews.value.push(e.target.result);
+      filePreviews.value.push({
+        type: file.type.startsWith("image/") ? "image" : "video",
+        url: e.target.result,
+      });
     };
     reader.readAsDataURL(file);
   }

@@ -61,18 +61,29 @@
               </td>
               <td class="px-3 py-3 font-medium">{{ item.name }}</td>
               <td class="px-3 py-3 font-light" :title="item.detail">{{ item.detail }}</td>
-              <td class="px-3 py-3 font-light text-center">
+              <td class="px-3 py-3 font-light">
                 <div
                   v-if="item.images && item.images.length > 0"
                   class="cursor-pointer"
                   @click.stop="openImageModal(item.images)"
                 >
-                  <img :src="item.images[0]" alt="image" class="w-10 h-10 object-cover" />
+                  <template
+                    v-if="!item.images[0].match(/\.(mp4|mov|avi|wmv|flv|mkv|webm)$/i)"
+                  >
+                    <img
+                      :src="item.images[0]"
+                      alt="image"
+                      class="w-10 h-10 object-cover"
+                    />
+                  </template>
+                  <template v-else>
+                    <div class="text-primary text-sm underline">ดูวิดีโอแนบ</div>
+                  </template>
                   <span v-if="item.images.length > 1" class="text-xs text-gray-500"
                     >+{{ item.images.length - 1 }}</span
                   >
                 </div>
-                <div v-else class="text-gray-400 text-xs">ไม่มีรูปภาพ</div>
+                <div v-else class="text-gray-400 text-xs">ไม่มีข้อมูล</div>
               </td>
               <td class="px-3 py-3 font-light" :title="item.sub_name">
                 <img
@@ -161,7 +172,7 @@
       @updated="fetchData(page)"
     />
 
-    <!-- Image Modal -->
+    <!-- Image/Video Modal -->
     <div
       v-if="imageModalOpen"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
@@ -188,10 +199,22 @@
           </svg>
         </button>
         <div class="relative">
+          <!-- รูปภาพ -->
           <img
+            v-if="!isVideo(selectedImages[currentImageIndex])"
             :src="selectedImages[currentImageIndex]"
             class="mx-auto max-h-[80vh] object-contain"
+            alt="Preview"
           />
+          <!-- วิดีโอ -->
+          <video
+            v-else
+            :src="selectedImages[currentImageIndex]"
+            class="mx-auto max-h-[80vh]"
+            controls
+            autoplay
+          ></video>
+
           <button
             v-if="selectedImages.length > 1"
             @click.stop="prevImage"
@@ -467,4 +490,10 @@ function fitBoundingBoxOnMap(bbox) {
 onMounted(() => {
   fetchData(1);
 });
+
+// เพิ่มฟังก์ชันตรวจสอบประเภทไฟล์
+const isVideo = (url) => {
+  if (!url) return false;
+  return url.match(/\.(mp4|mov|avi|wmv|flv|mkv|webm)$/i);
+};
 </script>

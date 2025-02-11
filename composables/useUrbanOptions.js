@@ -24,4 +24,4 @@ export const useUrbanOptions = () => {
     ownershipList,
     stakeholderList,
   };
-}; 
+};
