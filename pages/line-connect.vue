@@ -43,9 +43,7 @@ onMounted(async () => {
   }
 
   try {
-    await $axios.post(`/line-connect`, {
-      params: { luid }
-    });
+    await $axios.post(`/line-connect?luid=${luid}`);
     isConnected.value = true;
   } catch (error) {
     toast.error('เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง');
