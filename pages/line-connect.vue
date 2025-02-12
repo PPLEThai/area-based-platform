@@ -43,7 +43,7 @@ onMounted(async () => {
   }
 
   try {
-    await $axios.get(`/line-connect`, {
+    await $axios.post(`/line-connect`, {
       params: { luid }
     });
     isConnected.value = true;
