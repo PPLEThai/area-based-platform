@@ -20,7 +20,7 @@
               for="title-name"
               class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
             >
-              หัวข้อ
+              หัวข้อ<span class="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -59,7 +59,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label for="category" class="block text-sm font-medium text-gray-700"
-                >การถือครอง</label
+                >การถือครอง<span class="text-red-500">*</span></label
               >
               <select
                 id="category"
@@ -78,7 +78,7 @@
 
             <div>
               <label for="category" class="block text-sm font-medium text-gray-700"
-                >ผู้มีส่วนได้ส่วนเสีย</label
+                >ผู้มีส่วนได้ส่วนเสีย<span class="text-red-500">*</span></label
               >
               <select
                 id="category"
@@ -105,7 +105,7 @@
               for="detail-name"
               class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
             >
-              รายละเอียด
+              รายละเอียด<span class="text-red-500">*</span>
             </label>
             <textarea
               id="detail-name"

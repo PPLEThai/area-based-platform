@@ -100,7 +100,7 @@ const checkCategoryColor = (id) => {
 const fetchUrbanIssues = async () => {
   try {
     const { getUrbanIssues } = useUrbanIssues();
-    const response = await getUrbanIssues({ all: "true" });
+    const response = await getUrbanIssues({ all: "true", province_id: 10 });
     await drawGeometryWithImage(response);
 
     // Group by category and count issues
