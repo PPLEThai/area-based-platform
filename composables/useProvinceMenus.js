@@ -48,15 +48,15 @@ export const useProvinceMenus = () => {
         city: "bangkok",
         cityName: "กรุงเทพฯ"
       },
-      {
-        id: "bangkok-childhood",
-        name: "ศูนย์เด็กเล็ก",
-        role: "childhood",
-        path: "/bangkok/childhood",
-        icon: markRaw(SvgAddPin),
-        city: "bangkok",
-        cityName: "กรุงเทพฯ"
-      },
+      // {
+      //   id: "bangkok-childhood",
+      //   name: "ศูนย์เด็กเล็ก",
+      //   role: "childhood",
+      //   path: "/bangkok/childhood",
+      //   icon: markRaw(SvgAddPin),
+      //   city: "bangkok",
+      //   cityName: "กรุงเทพฯ"
+      // },
       {
         id: "bangkok-childhood-items",
         name: "รายการ ศพด.",
