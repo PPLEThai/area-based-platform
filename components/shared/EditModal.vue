@@ -33,7 +33,6 @@
 
           <!-- Form edit -->
           <div class="p-4 w-full sm:w-[50%]">
-            <!-- {{ form }} -->
             <div class="mb-4">
               <label for="name" class="block text-sm font-medium text-gray-700"
                 >ชื่อ</label
@@ -64,6 +63,16 @@
                 :initialCategoryId="getCategoryId"
                 :initialSubcategoryId="form.subcategory_id"
                 @selection-changed="handleSelectionChanged"
+              />
+            </div>
+
+            <!-- Extra Fields สำหรับศูนย์พัฒนาเด็กเล็ก -->
+            <div class="mb-4">
+              <SubcategoryFields
+                v-if="hasExtraFields"
+                :subcategoryId="form.subcategory_id"
+                v-model="extraData"
+                :showValidation="formSubmitted"
               />
             </div>
 
@@ -109,60 +118,78 @@
               </div>
             </div>
 
-            <!-- Upload image -->
+            <!-- Upload media -->
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 mb-2"
-                >อัปโหลดรูปภาพประกอบ (ไม่เกิน 5 รูป)</label
+                >อัปโหลดรูปภาพหรือวิดีโอประกอบ (ไม่เกิน 5 ไฟล์)</label
               >
               <input
                 class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
                 type="file"
                 multiple
-                accept="image/*"
+                accept="image/*,video/*"
                 @change="handleFileUpload"
               />
               <p class="mt-1 text-sm text-gray-500">
-                PNG, JPG (ขนาดไม่เกิน 800x400px และ 5MB)
+                รูปภาพ: PNG, JPG (ขนาดไม่เกิน 5MB) และวิดีโอ: MP4, WebM (ขนาดไม่เกิน 30MB)
               </p>
 
-              <!-- แสดงรูปภาพที่มีอยู่เดิม -->
+              <!-- แสดงรูปภาพและวิดีโอที่มีอยู่เดิม -->
               <div v-if="existingImages.length" class="grid grid-cols-2 gap-2 mt-2">
                 <div
-                  v-for="(image, index) in existingImages"
+                  v-for="(media, index) in existingImages"
                   :key="index"
                   class="relative group"
                 >
+                  <!-- รูปภาพ -->
                   <img
-                    :src="image"
+                    v-if="!isVideo(media)"
+                    :src="media"
                     class="w-full h-32 object-cover rounded"
                     :alt="`รูปภาพที่ ${index + 1}`"
                   />
+                  <!-- วิดีโอ -->
+                  <div
+                    v-else
+                    class="w-full h-32 bg-gray-100 rounded flex items-center justify-center"
+                  >
+                    <div class="text-primary text-sm underline">วิดีโอแนบ</div>
+                  </div>
                   <button
                     @click="removeExistingImage(index)"
                     class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                    title="ลบรูปภาพ"
+                    title="ลบไฟล์"
                   >
                     ×
                   </button>
                 </div>
               </div>
 
-              <!-- แสดงรูปภาพที่เพิ่งอัปโหลด -->
+              <!-- แสดงรูปภาพและวิดีโอที่เพิ่งอัปโหลด -->
               <div v-if="filePreviews.length" class="grid grid-cols-2 gap-2 mt-2">
                 <div
                   v-for="(preview, index) in filePreviews"
                   :key="index"
                   class="relative group"
                 >
+                  <!-- รูปภาพ -->
                   <img
+                    v-if="!isVideo(uploadedFiles[index].name)"
                     :src="preview"
                     class="w-full h-32 object-cover rounded"
-                    :alt="`รูปภาพใหม่ที่ ${index + 1}`"
+                    :alt="`ไฟล์ใหม่ที่ ${index + 1}`"
                   />
+                  <!-- วิดีโอ -->
+                  <div
+                    v-else
+                    class="w-full h-32 bg-gray-100 rounded flex items-center justify-center"
+                  >
+                    <div class="text-primary text-sm underline">วิดีโอใหม่</div>
+                  </div>
                   <button
                     @click="removeFile(index)"
                     class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                    title="ลบรูปภาพ"
+                    title="ลบไฟล์"
                   >
                     ×
                   </button>
@@ -199,13 +226,15 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import MapLibreEditModal from "../maps/MapLibreEditModal.vue";
 import { useToast } from "vue-toastification";
 import { useUrbanIssues } from "@/composables/useUrbanIssues";
 import * as Terraformer from "@terraformer/wkt";
 import Dropdowns from "@/components/shared/Dropdowns.vue";
+import SubcategoryFields from "@/components/shared/SubcategoryFields.vue";
 import { useUrbanOptions } from "@/composables/useUrbanOptions";
+import { useSubcategoryFields } from "@/composables/useSubcategoryFields";
 
 const props = defineProps({
   isOpen: Boolean,
@@ -216,6 +245,7 @@ const props = defineProps({
 
 const emit = defineEmits(["cancel", "confirm", "updated"]);
 const toast = useToast();
+const formSubmitted = ref(false);
 
 const mapStyle = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
 
@@ -228,17 +258,56 @@ const form = ref({
   stakeholder_id: props.initialData?.stakeholder_id || null,
   geom: props.initialData?.geom || null,
   images: props.initialData?.images || [],
+  extra_data: props.initialData?.extra_data || null,
 });
+
+const { subcategoryFields, getDefaultValues } = useSubcategoryFields();
+
+// เพิ่ม computed property เพื่อเช็คว่ามี extra fields หรือไม่
+const hasExtraFields = computed(() => {
+  return form.value.subcategory_id && subcategoryFields[form.value.subcategory_id];
+});
+
+// แก้ไข extraData ref เพื่อใช้ค่าจาก initialData.extra_data ถ้ามี
+const extraData = ref(
+  props.initialData?.extra_data
+    ? (() => {
+        // ถ้าเป็น string ให้แปลงเป็น object
+        const extraDataObj =
+          typeof props.initialData.extra_data === "string"
+            ? JSON.parse(props.initialData.extra_data)
+            : props.initialData.extra_data;
+
+        return {
+          numberofchildren: parseInt(extraDataObj.numberofchildren) || 0,
+          babysitter: parseInt(extraDataObj.babysitter) || 0,
+          babysitter_status: extraDataObj.babysitter_status || "",
+          roomsize: extraDataObj.roomsize || "",
+        };
+      })()
+    : getDefaultValues(form.value.subcategory_id)
+);
+
+// เพิ่ม watch เพื่อติดตามการเปลี่ยนแปลงของ subcategory_id
+watch(
+  () => form.value.subcategory_id,
+  (newId) => {
+    if (newId && !props.initialData?.extra_data) {
+      extraData.value = getDefaultValues(newId);
+    }
+  }
+);
 
 const resetDropdown = ref(false);
 
 const isFormValid = computed(() => {
-  return (
+  const basicValidation =
     form.value.name &&
     form.value.detail &&
     form.value.subcategory_id !== "" &&
-    form.value.geom
-  );
+    form.value.geom;
+
+  return basicValidation;
 });
 
 const getCategoryId = computed(() => {
@@ -294,23 +363,37 @@ const filePreviews = ref([]);
 
 const { ownershipList, stakeholderList } = useUrbanOptions();
 
+// เพิ่มฟังก์ชันตรวจสอบประเภทไฟล์
+const isVideo = (url) => {
+  if (!url) return false;
+  return url.match(/\.(mp4|mov|avi|wmv|flv|mkv|webm)$/i);
+};
+
 const handleFileUpload = (event) => {
   const files = event.target.files;
-  const maxSize = 5 * 1024 * 1024; // 5MB
+  const maxImageSize = 5 * 1024 * 1024; // 5MB
+  const maxVideoSize = 30 * 1024 * 1024; // 30MB
 
   if (files.length + uploadedFiles.value.length + existingImages.value.length > 5) {
-    toast.error("คุณสามารถอัปโหลดได้สูงสุด 5 รูปภาพเท่านั้น");
+    toast.error("คุณสามารถอัปโหลดได้สูงสุด 5 ไฟล์เท่านั้น");
     return;
   }
 
   for (const file of files) {
-    if (!file.type.startsWith("image/")) {
-      toast.error("กรุณาอัปโหลดเฉพาะไฟล์รูปภาพ");
+    // ตรวจสอบประเภทไฟล์
+    if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) {
+      toast.error("กรุณาอัปโหลดเฉพาะไฟล์รูปภาพหรือวิดีโอ");
       continue;
     }
 
+    // ตรวจสอบขนาดไฟล์
+    const maxSize = file.type.startsWith("video/") ? maxVideoSize : maxImageSize;
     if (file.size > maxSize) {
-      toast.error(`ไฟล์ ${file.name} มีขนาดใหญ่เกิน 5MB`);
+      toast.error(
+        `ไฟล์ ${file.name} มีขนาดใหญ่เกิน ${
+          file.type.startsWith("video/") ? "30MB" : "5MB"
+        }`
+      );
       continue;
     }
 
@@ -334,10 +417,15 @@ const removeExistingImage = (index) => {
 
 const handleSubmit = async () => {
   try {
+    formSubmitted.value = true;
     const { updateUrbanIssue } = useUrbanIssues();
 
     if (!form.value.id) {
       throw new Error("ไม่พบ ID ของข้อมูล");
+    }
+
+    if (!isFormValid.value) {
+      throw new Error("กรุณากรอกข้อมูลให้ครบถ้วน");
     }
 
     const formData = new FormData();
@@ -351,19 +439,25 @@ const handleSubmit = async () => {
     formData.append("email", props.userEmail);
     formData.append("geom", form.value.geom);
 
+    // เพิ่ม extra_data ถ้ามี
+    if (hasExtraFields.value) {
+      const extraDataToSend = {
+        ...extraData.value,
+        numberofchildren: parseInt(extraData.value.numberofchildren),
+        babysitter: parseInt(extraData.value.babysitter),
+      };
+      formData.append("extra_data", JSON.stringify(extraDataToSend));
+    }
+
     // จัดการรูปภาพใหม่
     uploadedFiles.value.forEach((file) => {
-      formData.append(`images`, file); // เปลี่ยนจาก files เป็น images
+      formData.append(`images`, file);
     });
 
-    console.log(uploadedFiles.value);
-
-    // จัดการรูปภาพเดิม - ส่งเฉพาะ URL ของรูปที่ยังไม่ถูกลบ
+    // จัดการรูปภาพเดิม
     const existingImageUrls = existingImages.value
       .filter((image) => image && !image.isDeleted)
       .map((image) => image);
-
-    console.log(existingImageUrls);
 
     formData.append("existing_images", JSON.stringify(existingImageUrls));
 

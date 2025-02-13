@@ -48,6 +48,14 @@
             </p>
           </div>
 
+          <SubcategoryFields
+            class="mb-4"
+            v-if="hasExtraFields"
+            :subcategoryId="selectedSubcategory"
+            v-model="extraData"
+            :showValidation="isSubmitted"
+          />
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label for="category" class="block text-sm font-medium text-gray-700"
@@ -238,7 +246,7 @@
 <script setup>
 import { useUserStore } from "@/stores/useStore";
 import { useRouter } from "#app";
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useUrbanIssues } from "@/composables/useUrbanIssues";
 import { useToast } from "vue-toastification";
 import { geojsonToWKT } from "@terraformer/wkt";
@@ -249,6 +257,8 @@ import maplibregl from "maplibre-gl";
 import { useProvinceLocation } from "@/composables/useProvinceLocation";
 import { useProvinces } from "@/composables/useProvinces";
 import { useUrbanOptions } from "@/composables/useUrbanOptions";
+import SubcategoryFields from "@/components/shared/SubcategoryFields.vue";
+import { useSubcategoryFields } from "@/composables/useSubcategoryFields";
 
 const userStore = useUserStore();
 const user = userStore.$state;
@@ -269,6 +279,30 @@ const mapStyle = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
 const mapInstance = ref(null);
 const isGettingLocation = ref(false);
 const currentMarker = ref(null);
+
+const { subcategoryFields, getDefaultValues, validateFields } = useSubcategoryFields();
+
+const extraData = ref(getDefaultValues(selectedSubcategory.value));
+
+// เพิ่ม computed property เพื่อเช็คว่ามี extra fields หรือไม่
+const hasExtraFields = computed(() => {
+  return selectedSubcategory.value && subcategoryFields[selectedSubcategory.value];
+});
+
+// เพิ่ม watch เพื่อรีเซ็ต extraData เมื่อเปลี่ยน subcategory
+watch(
+  () => selectedSubcategory.value,
+  (newSubcategoryId) => {
+    if (newSubcategoryId) {
+      // รีเซ็ตค่าใหม่ทั้งหมดตาม subcategory
+      extraData.value = getDefaultValues(newSubcategoryId);
+    } else {
+      // ถ้าไม่ได้เลือก subcategory ให้เคลียร์ค่า
+      extraData.value = {};
+    }
+  },
+  { immediate: true }
+);
 
 const props = defineProps({
   province: {
@@ -379,6 +413,8 @@ const handleSelectionChanged = (selectedDropdown) => {
 const openConfirmModal = () => {
   isSubmitted.value = true;
   const toast = useToast();
+
+  // ตรวจสอบฟิลด์พื้นฐาน
   if (
     !titleName.value.trim() ||
     !selectedCategory.value ||
@@ -391,15 +427,22 @@ const openConfirmModal = () => {
     return;
   }
 
+  // ตรวจสอบ extra fields ถ้ามี
+  if (hasExtraFields.value) {
+    const { isValid, errors } = validateFields(
+      selectedSubcategory.value,
+      extraData.value
+    );
+    if (!isValid) {
+      toast.error("กรุณากรอกข้อมูลเพิ่มเติมให้ครบถ้วน", { timeout: 3000 });
+      return;
+    }
+  }
+
   if (geom.value.length === 0) {
     toast.error("กรุณาปักหมุดหรือวาดขอบเขตบนแผนที่", { timeout: 3000 });
     return;
   }
-
-  // if (uploadedFiles.value.length === 0) {
-  //   toast.error("กรุณาอัปโหลดรูปภาพอย่างน้อย 1 รูป");
-  //   return;
-  // }
 
   isModalOpen.value = true;
 };
@@ -423,9 +466,14 @@ const confirmSubmit = async () => {
   formData.append("stakeholder_id", selectedStakeholder.value);
   formData.append("province_id", provinceId.value);
 
-  // เพิ่มรูปภาพแต่ละไฟล์เข้าไปใน FormData
-  uploadedFiles.value.forEach((file, index) => {
-    formData.append(`images`, file); // ใช้ชื่อฟิลด์เดียวกันสำหรับทุกไฟล์
+  // เพิ่ม extra_data ถ้ามี
+  if (hasExtraFields.value) {
+    formData.append("extra_data", JSON.stringify(extraData.value));
+  }
+
+  // เพิ่มรูปภาพ
+  uploadedFiles.value.forEach((file) => {
+    formData.append(`images`, file);
   });
 
   try {
@@ -457,6 +505,7 @@ const resetForm = () => {
   nextTick(() => {
     resetDropdown.value = false;
   });
+  extraData.value = getDefaultValues(selectedSubcategory.value);
 };
 
 const updateFeatures = (newFeatures) => {

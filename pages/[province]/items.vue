@@ -291,6 +291,7 @@ const editForm = reactive({
   ownership_id: null,
   stakeholder_id: null,
   images: [],
+  extra_data: null,
 });
 
 const provinceLocation = computed(() => {
@@ -374,6 +375,7 @@ function openEditModal(item) {
   editForm.geom = item.geom;
   editForm.ownership_id = item.ownership_id;
   editForm.stakeholder_id = item.stakeholder_id;
+  editForm.extra_data = item.extra_data;
   editModalOpen.value = true;
 }
 
@@ -388,6 +390,7 @@ function closeEditModal() {
   editForm.ownership_id = null;
   editForm.stakeholder_id = null;
   editForm.images = [];
+  editForm.extra_data = null;
 }
 
 async function confirmDelete() {
