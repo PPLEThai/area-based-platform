@@ -2,7 +2,7 @@
   <div class="space-y-4">
     <div>
       <label for="category" class="block text-sm font-medium text-gray-700"
-        >หมวดหมู่</label
+        >หมวดหมู่<span class="text-red-500">*</span></label
       >
       <select
         id="category"
@@ -19,7 +19,7 @@
 
     <div>
       <label for="subcategory" class="block text-sm font-medium text-gray-700"
-        >หมวดหมู่ย่อย</label
+        >หมวดหมู่ย่อย<span class="text-red-500">*</span></label
       >
       <select
         id="subcategory"
