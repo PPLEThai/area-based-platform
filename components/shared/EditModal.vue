@@ -109,60 +109,78 @@
               </div>
             </div>
 
-            <!-- Upload image -->
+            <!-- Upload media -->
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 mb-2"
-                >อัปโหลดรูปภาพประกอบ (ไม่เกิน 5 รูป)</label
+                >อัปโหลดรูปภาพหรือวิดีโอประกอบ (ไม่เกิน 5 ไฟล์)</label
               >
               <input
                 class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
                 type="file"
                 multiple
-                accept="image/*"
+                accept="image/*,video/*"
                 @change="handleFileUpload"
               />
               <p class="mt-1 text-sm text-gray-500">
-                PNG, JPG (ขนาดไม่เกิน 800x400px และ 5MB)
+                รูปภาพ: PNG, JPG (ขนาดไม่เกิน 5MB) และวิดีโอ: MP4, WebM (ขนาดไม่เกิน 30MB)
               </p>
 
-              <!-- แสดงรูปภาพที่มีอยู่เดิม -->
+              <!-- แสดงรูปภาพและวิดีโอที่มีอยู่เดิม -->
               <div v-if="existingImages.length" class="grid grid-cols-2 gap-2 mt-2">
                 <div
-                  v-for="(image, index) in existingImages"
+                  v-for="(media, index) in existingImages"
                   :key="index"
                   class="relative group"
                 >
+                  <!-- รูปภาพ -->
                   <img
-                    :src="image"
+                    v-if="!isVideo(media)"
+                    :src="media"
                     class="w-full h-32 object-cover rounded"
                     :alt="`รูปภาพที่ ${index + 1}`"
                   />
+                  <!-- วิดีโอ -->
+                  <div
+                    v-else
+                    class="w-full h-32 bg-gray-100 rounded flex items-center justify-center"
+                  >
+                    <div class="text-primary text-sm underline">วิดีโอแนบ</div>
+                  </div>
                   <button
                     @click="removeExistingImage(index)"
                     class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                    title="ลบรูปภาพ"
+                    title="ลบไฟล์"
                   >
                     ×
                   </button>
                 </div>
               </div>
 
-              <!-- แสดงรูปภาพที่เพิ่งอัปโหลด -->
+              <!-- แสดงรูปภาพและวิดีโอที่เพิ่งอัปโหลด -->
               <div v-if="filePreviews.length" class="grid grid-cols-2 gap-2 mt-2">
                 <div
                   v-for="(preview, index) in filePreviews"
                   :key="index"
                   class="relative group"
                 >
+                  <!-- รูปภาพ -->
                   <img
+                    v-if="!isVideo(uploadedFiles[index].name)"
                     :src="preview"
                     class="w-full h-32 object-cover rounded"
-                    :alt="`รูปภาพใหม่ที่ ${index + 1}`"
+                    :alt="`ไฟล์ใหม่ที่ ${index + 1}`"
                   />
+                  <!-- วิดีโอ -->
+                  <div
+                    v-else
+                    class="w-full h-32 bg-gray-100 rounded flex items-center justify-center"
+                  >
+                    <div class="text-primary text-sm underline">วิดีโอใหม่</div>
+                  </div>
                   <button
                     @click="removeFile(index)"
                     class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                    title="ลบรูปภาพ"
+                    title="ลบไฟล์"
                   >
                     ×
                   </button>
@@ -294,23 +312,37 @@ const filePreviews = ref([]);
 
 const { ownershipList, stakeholderList } = useUrbanOptions();
 
+// เพิ่มฟังก์ชันตรวจสอบประเภทไฟล์
+const isVideo = (url) => {
+  if (!url) return false;
+  return url.match(/\.(mp4|mov|avi|wmv|flv|mkv|webm)$/i);
+};
+
 const handleFileUpload = (event) => {
   const files = event.target.files;
-  const maxSize = 5 * 1024 * 1024; // 5MB
+  const maxImageSize = 5 * 1024 * 1024; // 5MB
+  const maxVideoSize = 30 * 1024 * 1024; // 30MB
 
   if (files.length + uploadedFiles.value.length + existingImages.value.length > 5) {
-    toast.error("คุณสามารถอัปโหลดได้สูงสุด 5 รูปภาพเท่านั้น");
+    toast.error("คุณสามารถอัปโหลดได้สูงสุด 5 ไฟล์เท่านั้น");
     return;
   }
 
   for (const file of files) {
-    if (!file.type.startsWith("image/")) {
-      toast.error("กรุณาอัปโหลดเฉพาะไฟล์รูปภาพ");
+    // ตรวจสอบประเภทไฟล์
+    if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) {
+      toast.error("กรุณาอัปโหลดเฉพาะไฟล์รูปภาพหรือวิดีโอ");
       continue;
     }
 
+    // ตรวจสอบขนาดไฟล์
+    const maxSize = file.type.startsWith("video/") ? maxVideoSize : maxImageSize;
     if (file.size > maxSize) {
-      toast.error(`ไฟล์ ${file.name} มีขนาดใหญ่เกิน 5MB`);
+      toast.error(
+        `ไฟล์ ${file.name} มีขนาดใหญ่เกิน ${
+          file.type.startsWith("video/") ? "30MB" : "5MB"
+        }`
+      );
       continue;
     }
 
