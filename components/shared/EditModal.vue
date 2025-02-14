@@ -46,6 +46,38 @@
             </div>
 
             <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700">ประเภท</label>
+              <div class="mt-1 flex gap-4">
+                <div class="flex items-center">
+                  <input
+                    type="radio"
+                    id="problem"
+                    name="type"
+                    value="problem"
+                    v-model="form.type"
+                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
+                  />
+                  <label for="problem" class="ml-2 text-sm font-medium text-gray-900"
+                    >ปัญหา</label
+                  >
+                </div>
+                <div class="flex items-center">
+                  <input
+                    type="radio"
+                    id="proposal"
+                    name="type"
+                    value="proposal"
+                    v-model="form.type"
+                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
+                  />
+                  <label for="proposal" class="ml-2 text-sm font-medium text-gray-900"
+                    >ข้อเสนอโครงการ</label
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-4">
               <label for="detail" class="block text-sm font-medium text-gray-700"
                 >รายละเอียด</label
               >
@@ -253,6 +285,7 @@ const form = ref({
   id: props.initialData?.id || null,
   name: props.initialData?.name || "",
   detail: props.initialData?.detail || "",
+  type: props.initialData?.type || null,
   subcategory_id: props.initialData?.subcategory_id || null,
   ownership_id: props.initialData?.ownership_id || null,
   stakeholder_id: props.initialData?.stakeholder_id || null,
@@ -260,6 +293,7 @@ const form = ref({
   images: props.initialData?.images || [],
   extra_data: props.initialData?.extra_data || null,
 });
+console.log(form.value);
 
 const { subcategoryFields, getDefaultValues } = useSubcategoryFields();
 
@@ -279,10 +313,15 @@ const extraData = ref(
             : props.initialData.extra_data;
 
         return {
-          numberofchildren: parseInt(extraDataObj.numberofchildren) || 0,
-          babysitter: parseInt(extraDataObj.babysitter) || 0,
-          babysitter_status: extraDataObj.babysitter_status || "",
-          roomsize: extraDataObj.roomsize || "",
+          total_children: parseInt(extraDataObj.total_children) || 0,
+          children_under_two: parseInt(extraDataObj.children_under_two) || 0,
+          caretakers: parseInt(extraDataObj.caretakers) || 0,
+          rooms: parseInt(extraDataObj.rooms) || 0,
+          location_type: extraDataObj.location_type || "",
+          survey_date: extraDataObj.survey_date || "",
+          caretaker_feedback: extraDataObj.caretaker_feedback || "",
+          surveyor_feedback: extraDataObj.surveyor_feedback || "",
+          building_feedback: extraDataObj.building_feedback || "",
         };
       })()
     : getDefaultValues(form.value.subcategory_id)
@@ -433,6 +472,7 @@ const handleSubmit = async () => {
     // ข้อมูลพื้นฐาน
     formData.append("name", form.value.name);
     formData.append("detail", form.value.detail);
+    formData.append("type", form.value.type);
     formData.append("subcategory_id", form.value.subcategory_id);
     formData.append("ownership_id", form.value.ownership_id);
     formData.append("stakeholder_id", form.value.stakeholder_id);
@@ -443,8 +483,10 @@ const handleSubmit = async () => {
     if (hasExtraFields.value) {
       const extraDataToSend = {
         ...extraData.value,
-        numberofchildren: parseInt(extraData.value.numberofchildren),
-        babysitter: parseInt(extraData.value.babysitter),
+        total_children: parseInt(extraData.value.total_children),
+        children_under_two: parseInt(extraData.value.children_under_two),
+        caretakers: parseInt(extraData.value.caretakers),
+        rooms: parseInt(extraData.value.rooms),
       };
       formData.append("extra_data", JSON.stringify(extraDataToSend));
     }

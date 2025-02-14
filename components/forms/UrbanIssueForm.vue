@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col-reverse h-fit md:flex-row md:h-full">
     <!-- ส่วนของการบันทึกข้อมูล -->
-    <div class="w-5/5 md:w-2/5 p-4 shadow-lg h-auto md:h-full overflow-y-auto">
+    <div class="w-5/5 md:w-2/4 p-4 shadow-lg h-auto md:h-full overflow-y-auto">
       <div class="py-2">
         <div class="text-primary font-bold">
           บันทึกข้อมูลปัญหาพื้นที่หรือแนวทางการแก้ไข
@@ -31,6 +31,44 @@
             />
             <p v-if="isSubmitted && !titleName.trim()" class="text-red-500 text-sm">
               กรุณากรอกหัวข้อ
+            </p>
+          </div>
+
+          <!-- เลือกประเภทหรือข้อเสนอแนะ -->
+          <div class="flex flex-row gap-2">
+            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              >ประเภท:<span class="text-red-500">*</span></label
+            >
+            <div>
+              <div class="flex gap-4">
+                <div class="flex items-center">
+                  <input
+                    type="radio"
+                    id="problem"
+                    name="type"
+                    value="problem"
+                    v-model="issueType"
+                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
+                  /><label for="problem" class="ml-2 text-sm font-medium text-gray-900"
+                    >ปัญหา</label
+                  >
+                </div>
+                <div class="flex items-center">
+                  <input
+                    type="radio"
+                    id="proposal"
+                    name="type"
+                    value="proposal"
+                    v-model="issueType"
+                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
+                  /><label for="proposal" class="ml-2 text-sm font-medium text-gray-900"
+                    >ข้อเสนอโครงการ</label
+                  >
+                </div>
+              </div>
+            </div>
+            <p v-if="isSubmitted && !issueType" class="text-red-500 text-sm">
+              กรุณาเลือกประเภท
             </p>
           </div>
 
@@ -176,7 +214,7 @@
     </div>
 
     <!-- ส่วนของแผนที่ -->
-    <div class="w-5/5 md:w-3/5 h-[350px] md:h-full relative">
+    <div class="w-5/5 md:w-2/4 h-[350px] md:h-full relative">
       <button
         @click="getCurrentLocation"
         :disabled="isGettingLocation"
@@ -279,6 +317,7 @@ const mapStyle = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
 const mapInstance = ref(null);
 const isGettingLocation = ref(false);
 const currentMarker = ref(null);
+const issueType = ref("problem");
 
 const { subcategoryFields, getDefaultValues, validateFields } = useSubcategoryFields();
 
@@ -417,6 +456,7 @@ const openConfirmModal = () => {
   // ตรวจสอบฟิลด์พื้นฐาน
   if (
     !titleName.value.trim() ||
+    !issueType.value ||
     !selectedCategory.value ||
     !selectedSubcategory.value ||
     !detailName.value.trim() ||
@@ -465,6 +505,7 @@ const confirmSubmit = async () => {
   formData.append("geom", geojsonToWKT(geom.value[0].geometry));
   formData.append("stakeholder_id", selectedStakeholder.value);
   formData.append("province_id", provinceId.value);
+  formData.append("type", issueType.value);
 
   // เพิ่ม extra_data ถ้ามี
   if (hasExtraFields.value) {
@@ -506,6 +547,7 @@ const resetForm = () => {
     resetDropdown.value = false;
   });
   extraData.value = getDefaultValues(selectedSubcategory.value);
+  issueType.value = "";
 };
 
 const updateFeatures = (newFeatures) => {
