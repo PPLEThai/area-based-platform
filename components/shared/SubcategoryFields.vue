@@ -3,12 +3,14 @@
     <div
       v-for="(field, key) in fields"
       :key="key"
-      :class="{ 'md:col-span-2': field.fullWidth }"
+      :class="{ 'md:col-span-2': field.fullWidth || field.type === 'longtext' }"
     >
       <label :for="key" class="block text-sm font-medium text-gray-700">
         {{ field.label }}
       </label>
+      <!-- Input สำหรับ text และ number -->
       <input
+        v-if="field.type !== 'longtext'"
         :id="key"
         :type="field.type"
         v-model="localValue[key]"
@@ -17,6 +19,15 @@
         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
         @input="updateValue"
       />
+      <!-- Textarea สำหรับ longtext -->
+      <textarea
+        v-else
+        :id="key"
+        v-model="localValue[key]"
+        rows="4"
+        :placeholder="field.placeholder"
+        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+      ></textarea>
       <p v-if="showValidation && errors[key]" class="text-red-500 text-sm">
         {{ errors[key] }}
       </p>

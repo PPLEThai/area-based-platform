@@ -1,31 +1,63 @@
 export const useSubcategoryFields = () => {
   const subcategoryFields = {
     103: { // ศูนย์พัฒนาเด็กเล็ก
-      numberofchildren: {
-        label: "จำนวนเด็ก (อายุต่ำกว่า 2 ปี)",
+      total_children: {
+        label: "จำนวนเด็กในศพด. (คน)",
+        type: "number", 
+        required: true,
+        min: 0,
+        placeholder: "",
+      },
+      children_under_two: {
+        label: "จำนวนเด็กในศพด. < 2 ขวบ (คน)",
         type: "number",
         required: true,
         min: 0,
         placeholder: "",
       },
-      babysitter: {
-        label: "จำนวนพี่เลี้ยง",
+      caretakers: {
+        label: "จำนวนครูพี่เลี้ยง (คน)",
         type: "number",
         required: true,
         min: 0,
         placeholder: "",
       },
-      babysitter_status: {
-        label: "สถานะพี่เลี้ยง",
-        type: "text",
+      rooms: {
+        label: "จำนวนห้องดูแลเด็ก (ห้อง)",
+        type: "number",
         required: true,
-        placeholder: "เช่น ประจำ, พาร์ทไทม์",
+        min: 0,
+        placeholder: "",
       },
-      roomsize: {
-        label: "ขนาดห้อง",
+      location_type: {
+        label: "ประเภทสถานที่ตั้งศพด.",
         type: "text",
         required: true,
-        placeholder: "เช่น 4x6 ตารางเมตร",
+        placeholder: "เช่น เอกชน / วัด / กทม / ที่ราชพัสดุ /หน่วยงานราชการ / อื่นๆ",
+      },
+      survey_date: {
+        label: "วันที่สำรวจ",
+        type: "date",
+        required: true,
+        placeholder: "",
+      },
+      caretaker_feedback: {
+        label: "ความคิดเห็นของครูพี่เลี้ยงสำหรับพัฒนาห้องปลอดฝุ่น",
+        type: "longtext",
+        required: true,
+        placeholder: "",
+      },
+      surveyor_feedback: {
+        label: "ความคิดเห็นของผู้สำรวจสำหรับพัฒนาห้องปลอดฝุ่น", 
+        type: "longtext",
+        required: true,
+        placeholder: "",
+      },
+      building_feedback: {
+        label: "ความคิดเห็นต่อสภาพอาคาร, คุรุภัณฑ์ ที่ต้องการปรับปรุงเพิ่มเติม",
+        type: "longtext",
+        required: true,
+        placeholder: "",
       },
     }
     // เพิ่มประเภทอื่นๆ ได้ที่นี่

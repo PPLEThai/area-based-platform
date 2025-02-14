@@ -291,6 +291,7 @@ const editForm = reactive({
   ownership_id: null,
   stakeholder_id: null,
   images: [],
+  type: null,
   extra_data: null,
 });
 
@@ -376,6 +377,7 @@ function openEditModal(item) {
   editForm.ownership_id = item.ownership_id;
   editForm.stakeholder_id = item.stakeholder_id;
   editForm.extra_data = item.extra_data;
+  editForm.type = item.type;
   editModalOpen.value = true;
 }
 
@@ -391,6 +393,7 @@ function closeEditModal() {
   editForm.stakeholder_id = null;
   editForm.images = [];
   editForm.extra_data = null;
+  editForm.type = null;
 }
 
 async function confirmDelete() {
