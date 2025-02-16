@@ -148,128 +148,122 @@
           >
             <div class="grid grid-cols-2 gap-2">
               <div class="text-sm font-medium text-gray-500">ลำดับ:</div>
-              <div class="text-sm">{{ index + 1 }}</div>
-
+              <div>{{ index + 1 }}</div>
               <div class="text-sm font-medium text-gray-500">ชื่อ:</div>
-              <div class="text-sm">{{ item.name }}</div>
-
-              <div class="text-sm font-medium text-gray-500">รายละเอียด:</div>
-              <div class="text-sm">{{ item.detail }}</div>
-
-              <div class="text-sm font-medium text-gray-500">จำนวนเด็ก:</div>
-              <div class="text-sm">{{ item.extra_data?.numberofchildren || "-" }} คน</div>
-
-              <div class="text-sm font-medium text-gray-500">จำนวนพี่เลี้ยง:</div>
-              <div class="text-sm">{{ item.extra_data?.babysitter || "-" }} คน</div>
-
-              <div class="text-sm font-medium text-gray-500">สถานะพี่เลี้ยง:</div>
-              <div class="text-sm">{{ item.extra_data?.babysitter_status || "-" }}</div>
-
-              <div class="text-sm font-medium text-gray-500">ขนาดห้อง:</div>
-              <div class="text-sm">{{ item.extra_data?.roomsize || "-" }}</div>
-            </div>
-
-            <div class="mt-3">
-              <div class="text-sm font-medium text-gray-500 mb-1">รูปภาพ:</div>
-              <div v-if="item.images && item.images.length" class="flex flex-wrap gap-2">
-                <img
-                  v-for="(image, idx) in item.images"
-                  :key="idx"
-                  :src="image"
-                  :alt="item.name"
-                  class="h-16 w-16 object-cover rounded cursor-pointer"
-                  @click="openImageModal(image)"
-                />
+              <div>{{ item.name }}</div>
+              <div class="text-sm font-medium text-gray-500">จำนวนเด็กทั้งหมด:</div>
+              <div>{{ item.extra_data?.total_children || "-" }} คน</div>
+              <div class="text-sm font-medium text-gray-500">เด็กต่ำกว่า 2 ขวบ:</div>
+              <div>{{ item.extra_data?.children_under_two || "-" }} คน</div>
+              <div class="text-sm font-medium text-gray-500">จำนวนครูพี่เลี้ยง:</div>
+              <div>{{ item.extra_data?.caretakers || "-" }} คน</div>
+              <div class="text-sm font-medium text-gray-500">ครูจบป.ตรี:</div>
+              <div>{{ item.extra_data?.caretakers_bachelor || "-" }} คน</div>
+              <div class="text-sm font-medium text-gray-500">จำนวนห้อง:</div>
+              <div>{{ item.extra_data?.rooms || "-" }} ห้อง</div>
+              <div class="text-sm font-medium text-gray-500">ค่าบริการต่อเดือน:</div>
+              <div>{{ item.extra_data?.fee_per_month || "-" }} บาท</div>
+              <div class="text-sm font-medium text-gray-500">ประเภทสถานที่:</div>
+              <div>{{ item.extra_data?.location_type || "-" }}</div>
+              <div class="text-sm font-medium text-gray-500">วันที่สำรวจ:</div>
+              <div>{{ item.extra_data?.survey_date || "-" }}</div>
+              <div class="col-span-2 mt-2">
+                <div class="text-sm font-medium text-gray-500 mb-1">
+                  ความเห็นครูพี่เลี้ยง:
+                </div>
+                <div class="text-sm">
+                  {{ item.extra_data?.caretaker_feedback || "-" }}
+                </div>
               </div>
-              <span v-else class="text-sm text-gray-400">ไม่มีรูปภาพ</span>
+              <div class="col-span-2">
+                <div class="text-sm font-medium text-gray-500 mb-1">
+                  ความเห็นผู้สำรวจ:
+                </div>
+                <div class="text-sm">{{ item.extra_data?.surveyor_feedback || "-" }}</div>
+              </div>
+              <div class="col-span-2">
+                <div class="text-sm font-medium text-gray-500 mb-1">
+                  ความเห็นต่อสภาพอาคาร:
+                </div>
+                <div class="text-sm">{{ item.extra_data?.building_feedback || "-" }}</div>
+              </div>
+              <div class="col-span-2">
+                <div class="text-sm font-medium text-gray-500 mb-1">
+                  ความเห็นเร่งด่วน:
+                </div>
+                <div class="text-sm">
+                  {{ item.extra_data?.urgent_building_feedback || "-" }}
+                </div>
+              </div>
+              <div class="col-span-2">
+                <div class="text-sm font-medium text-gray-500 mb-1">ความเปลี่ยนแปลง:</div>
+                <div class="text-sm">
+                  {{ item.extra_data?.building_changes_feedback || "-" }}
+                </div>
+              </div>
+              <div class="col-span-2">
+                <div class="text-sm font-medium text-gray-500 mb-1">
+                  ความเห็นต่อโรงเรียนอนุบาล:
+                </div>
+                <div class="text-sm">
+                  {{ item.extra_data?.kindergarten_feedback || "-" }}
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Desktop Table View -->
         <div class="hidden sm:block overflow-x-auto">
-          <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-            <thead
-              class="text-sm text-white uppercase bg-secondary dark:bg-gray-700 dark:text-gray-400 sticky top-0"
-            >
+          <table class="w-full text-sm text-left text-gray-500">
+            <thead class="text-sm text-white uppercase bg-secondary sticky top-0">
               <tr>
-                <th
-                  class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-center"
-                >
-                  ลำดับ
-                </th>
-                <th
-                  class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider"
-                >
-                  ชื่อ
-                </th>
-                <th
-                  class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider"
-                >
-                  รายละเอียด
-                </th>
-                <th
-                  class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-center"
-                >
-                  จำนวนเด็กเล็ก (ต่ำกว่า 2 ปี)
-                </th>
-                <th
-                  class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-center"
-                >
-                  จำนวนพี่เลี้ยง
-                </th>
-                <th
-                  class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider"
-                >
-                  สถานะพี่เลี้ยง
-                </th>
-                <th
-                  class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider"
-                >
-                  ขนาดห้อง
-                </th>
-                <th
-                  class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-center"
-                >
-                  รูปภาพ
-                </th>
+                <th class="px-3 py-3 text-center">#</th>
+                <th class="px-3 py-3">ชื่อ</th>
+                <th class="px-3 py-3 text-center">จำนวนเด็ก</th>
+                <th class="px-3 py-3 text-center">เด็ก < 2 ขวบ</th>
+                <th class="px-3 py-3 text-center">ครูพี่เลี้ยง</th>
+                <th class="px-3 py-3 text-center">ครูจบป.ตรี</th>
+                <th class="px-3 py-3 text-center">จำนวนห้อง</th>
+                <th class="px-3 py-3 text-center">ค่าบริการ/ด.</th>
+                <th class="px-3 py-3">ประเภทสถานที่</th>
+                <th class="px-3 py-3">วันที่สำรวจ</th>
+                <th class="px-3 py-3">รายละเอียด</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
-              <tr v-for="(item, index) in items" :key="item.id" class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                  {{ index + 1 }}
+            <tbody>
+              <tr
+                v-for="(item, index) in items"
+                :key="item.id"
+                class="bg-white border-b hover:bg-gray-50"
+              >
+                <td class="px-3 py-3 text-center">{{ index + 1 }}</td>
+                <td class="px-3 py-3">{{ item.name }}</td>
+                <td class="px-3 py-3 text-center">
+                  {{ item.extra_data?.total_children || "-" }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {{ item.name }}
+                <td class="px-3 py-3 text-center">
+                  {{ item.extra_data?.children_under_two || "-" }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {{ item.detail }}
+                <td class="px-3 py-3 text-center">
+                  {{ item.extra_data?.caretakers || "-" }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                  {{ item.extra_data?.numberofchildren || "-" }}
+                <td class="px-3 py-3 text-center">
+                  {{ item.extra_data?.caretakers_bachelor || "-" }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                  {{ item.extra_data?.babysitter || "-" }}
+                <td class="px-3 py-3 text-center">{{ item.extra_data?.rooms || "-" }}</td>
+                <td class="px-3 py-3 text-center">
+                  {{ item.extra_data?.fee_per_month || "-" }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {{ item.extra_data?.babysitter_status || "-" }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {{ item.extra_data?.roomsize || "-" }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  <div v-if="item.images && item.images.length" class="flex space-x-2">
-                    <img
-                      v-for="(image, idx) in item.images"
-                      :key="idx"
-                      :src="image"
-                      :alt="item.name"
-                      class="h-10 w-10 object-cover rounded cursor-pointer"
-                      @click="openImageModal(image)"
-                    />
-                  </div>
-                  <span v-else class="text-gray-400">ไม่มีรูปภาพ</span>
+                <td class="px-3 py-3">{{ item.extra_data?.location_type || "-" }}</td>
+                <td class="px-3 py-3">{{ item.extra_data?.survey_date || "-" }}</td>
+                <td class="px-3 py-3">
+                  <button
+                    @click="openDetailModal(item)"
+                    class="text-blue-600 hover:text-blue-800"
+                  >
+                    ดูเพิ่มเติม
+                  </button>
                 </td>
               </tr>
             </tbody>
@@ -291,6 +285,51 @@
             </button>
           </div>
         </div>
+
+        <!-- Detail Modal -->
+        <ModalDetail v-if="showDetailModal" @close="showDetailModal = false">
+          <template #title>รายละเอียดเพิ่มเติม</template>
+          <template #body>
+            <div class="space-y-4">
+              <div>
+                <h3 class="font-medium text-gray-700">ความเห็นครูพี่เลี้ยง:</h3>
+                <p class="mt-1">
+                  {{ selectedItem?.extra_data?.caretaker_feedback || "-" }}
+                </p>
+              </div>
+              <div>
+                <h3 class="font-medium text-gray-700">ความเห็นผู้สำรวจ:</h3>
+                <p class="mt-1">
+                  {{ selectedItem?.extra_data?.surveyor_feedback || "-" }}
+                </p>
+              </div>
+              <div>
+                <h3 class="font-medium text-gray-700">ความเห็นต่อสภาพอาคาร:</h3>
+                <p class="mt-1">
+                  {{ selectedItem?.extra_data?.building_feedback || "-" }}
+                </p>
+              </div>
+              <div>
+                <h3 class="font-medium text-gray-700">ความเห็นเร่งด่วน:</h3>
+                <p class="mt-1">
+                  {{ selectedItem?.extra_data?.urgent_building_feedback || "-" }}
+                </p>
+              </div>
+              <div>
+                <h3 class="font-medium text-gray-700">ความเปลี่ยนแปลง:</h3>
+                <p class="mt-1">
+                  {{ selectedItem?.extra_data?.building_changes_feedback || "-" }}
+                </p>
+              </div>
+              <div>
+                <h3 class="font-medium text-gray-700">ความเห็นต่อโรงเรียนอนุบาล:</h3>
+                <p class="mt-1">
+                  {{ selectedItem?.extra_data?.kindergarten_feedback || "-" }}
+                </p>
+              </div>
+            </div>
+          </template>
+        </ModalDetail>
       </div>
     </div>
 
@@ -304,32 +343,6 @@
         @click="handleMarkerClick"
         ref="mapRef"
       />
-
-      <!-- Popup แสดงข้อมูล -->
-      <div
-        v-if="selectedItem"
-        class="absolute top-4 right-4 bg-white p-4 rounded-lg shadow-lg max-w-sm"
-      >
-        <div class="flex justify-between items-start mb-2">
-          <h3 class="font-bold text-lg">{{ selectedItem.name }}</h3>
-          <button @click="selectedItem = null" class="text-gray-500 hover:text-gray-700">
-            ✕
-          </button>
-        </div>
-        <div class="space-y-2">
-          <p class="text-sm text-gray-600">{{ selectedItem.detail }}</p>
-          <div class="grid grid-cols-2 gap-2 text-sm">
-            <div class="text-gray-500">จำนวนเด็ก:</div>
-            <div>{{ selectedItem.extra_data?.numberofchildren || "-" }} คน</div>
-            <div class="text-gray-500">จำนวนพี่เลี้ยง:</div>
-            <div>{{ selectedItem.extra_data?.babysitter || "-" }} คน</div>
-            <div class="text-gray-500">สถานะพี่เลี้ยง:</div>
-            <div>{{ selectedItem.extra_data?.babysitter_status || "-" }}</div>
-            <div class="text-gray-500">ขนาดห้อง:</div>
-            <div>{{ selectedItem.extra_data?.roomsize || "-" }}</div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -340,6 +353,7 @@ import { useUrbanIssues } from "@/composables/useUrbanIssues";
 import { useToast } from "vue-toastification";
 import MapLibre from "@/components/MapLibre.vue";
 import * as Terraformer from "@terraformer/wkt";
+import ModalDetail from "@/components/shared/ModalDetail.vue";
 
 const items = ref([]);
 const isLoading = ref(true);
@@ -347,6 +361,7 @@ const selectedImage = ref(null);
 const toast = useToast();
 const selectedItem = ref(null);
 const mapRef = ref(null);
+const showDetailModal = ref(false);
 
 // Computed properties for statistics
 const averageChildren = computed(() => {
@@ -482,11 +497,16 @@ const calculateBoundingBox = (geometry) => {
   return null;
 };
 
+const openDetailModal = (item) => {
+  selectedItem.value = item;
+  showDetailModal.value = true;
+};
+
 onMounted(async () => {
   try {
     const { getUrbanIssues } = useUrbanIssues();
     const response = await getUrbanIssues({ all: "true", province_id: 10 });
-    items.value = response.data.filter((item) => item.sub_id === 103);
+    items.value = response.data.filter((item) => item.sub_id === 404);
   } catch (error) {
     console.error("Error fetching data:", error);
     toast.error("ไม่สามารถดึงข้อมูลได้ โปรดลองใหม่อีกครั้ง");

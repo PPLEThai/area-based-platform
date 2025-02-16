@@ -293,7 +293,6 @@ const form = ref({
   images: props.initialData?.images || [],
   extra_data: props.initialData?.extra_data || null,
 });
-console.log(form.value);
 
 const { subcategoryFields, getDefaultValues } = useSubcategoryFields();
 
@@ -316,12 +315,17 @@ const extraData = ref(
           total_children: parseInt(extraDataObj.total_children) || 0,
           children_under_two: parseInt(extraDataObj.children_under_two) || 0,
           caretakers: parseInt(extraDataObj.caretakers) || 0,
+          caretakers_bachelor: parseInt(extraDataObj.caretakers_bachelor) || 0,
           rooms: parseInt(extraDataObj.rooms) || 0,
+          fee_per_month: parseInt(extraDataObj.fee_per_month) || 0,
           location_type: extraDataObj.location_type || "",
           survey_date: extraDataObj.survey_date || "",
           caretaker_feedback: extraDataObj.caretaker_feedback || "",
           surveyor_feedback: extraDataObj.surveyor_feedback || "",
           building_feedback: extraDataObj.building_feedback || "",
+          urgent_building_feedback: extraDataObj.urgent_building_feedback || "",
+          building_changes_feedback: extraDataObj.building_changes_feedback || "",
+          kindergarten_feedback: extraDataObj.kindergarten_feedback || "",
         };
       })()
     : getDefaultValues(form.value.subcategory_id)
@@ -483,13 +487,31 @@ const handleSubmit = async () => {
     if (hasExtraFields.value) {
       const extraDataToSend = {
         ...extraData.value,
-        total_children: parseInt(extraData.value.total_children),
-        children_under_two: parseInt(extraData.value.children_under_two),
-        caretakers: parseInt(extraData.value.caretakers),
-        rooms: parseInt(extraData.value.rooms),
+        // total_children: parseInt(extraData.value.total_children),
+        // children_under_two: parseInt(extraData.value.children_under_two),
+        // caretakers: parseInt(extraData.value.caretakers),
+        // rooms: parseInt(extraData.value.rooms),
+        // free_per_month: parseInt(extraData.fee_per_month),
+        // location_type:
       };
+      console.log(extraDataToSend);
       formData.append("extra_data", JSON.stringify(extraDataToSend));
     }
+
+    // total_children: parseInt(extraDataObj.total_children) || 0,
+    //       children_under_two: parseInt(extraDataObj.children_under_two) || 0,
+    //       caretakers: parseInt(extraDataObj.caretakers) || 0,
+    //       caretakers_bachelor: parseInt(extraDataObj.caretakers_bachelor) || 0,
+    //       rooms: parseInt(extraDataObj.rooms) || 0,
+    //       fee_per_month: parseInt(extraDataObj.fee_per_month) || 0,
+    //       location_type: extraDataObj.location_type || "",
+    //       survey_date: extraDataObj.survey_date || "",
+    //       caretaker_feedback: extraDataObj.caretaker_feedback || "",
+    //       surveyor_feedback: extraDataObj.surveyor_feedback || "",
+    //       building_feedback: extraDataObj.building_feedback || "",
+    //       urgent_building_feedback: extraDataObj.urgent_building_feedback || "",
+    //       building_changes_feedback: extraDataObj.building_changes_feedback || "",
+    //       kindergarten_feedback: extraDataObj.kindergarten_feedback || "",
 
     // จัดการรูปภาพใหม่
     uploadedFiles.value.forEach((file) => {

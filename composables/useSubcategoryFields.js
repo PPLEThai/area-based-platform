@@ -1,6 +1,6 @@
 export const useSubcategoryFields = () => {
   const subcategoryFields = {
-    103: { // ศูนย์พัฒนาเด็กเล็ก
+    404: { // ศูนย์พัฒนาเด็กเล็ก
       total_children: {
         label: "จำนวนเด็กในศพด. (คน)",
         type: "number", 
@@ -22,8 +22,22 @@ export const useSubcategoryFields = () => {
         min: 0,
         placeholder: "",
       },
+      caretakers_bachelor: {
+        label: "จำนวนครูพี่เลี้ยงที่จบปริญญาตรี (คน)",
+        type: "number",
+        required: true,
+        min: 0,
+        placeholder: "",
+      },
       rooms: {
         label: "จำนวนห้องดูแลเด็ก (ห้อง)",
+        type: "number",
+        required: true,
+        min: 0,
+        placeholder: "",
+      },
+      fee_per_month: {
+        label: "ค่าบริการที่เก็บจากผู้ปกครอง (บาท/เดือน)",
         type: "number",
         required: true,
         min: 0,
@@ -59,6 +73,24 @@ export const useSubcategoryFields = () => {
         required: true,
         placeholder: "",
       },
+      urgent_building_feedback: {
+        label: "ความคิดเห็น สภาพอาคาร, คุรุภัณฑ์ ที่ต้องการปรับปรุงเพิ่มเติมเร่งด่วน",
+        type: "longtext",
+        required: true,
+        placeholder: "",
+      },
+      building_changes_feedback: {
+        label: "ความคิดเห็น สภาพอาคาร, คุรุภัณฑ์ ที่แตกต่างจากการสำรวจศพด.ที่ผ่านมา",
+        type: "longtext", 
+        required: true,
+        placeholder: "",
+      },
+      kindergarten_feedback: {
+        label: "ความคิดเห็นของครูพี่เลี้ยง สำหรับกรณีโรงเรียนอนุบาลจะรับเด็กตั้งแต่ 3 ขวบขึ้นไป",
+        type: "longtext",
+        required: true,
+        placeholder: "",
+      }
     }
     // เพิ่มประเภทอื่นๆ ได้ที่นี่
   };
